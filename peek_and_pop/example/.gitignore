@@ -1,7 +1,7 @@
-./gitignore
-./android
-./build
-./ios
+/gitignore
+/android
+/build
+/ios
 
 # Miscellaneous
 *.class
