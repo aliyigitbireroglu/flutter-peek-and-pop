@@ -14,9 +14,15 @@ import 'package:flutter/widgets.dart';
 
 import 'Export.dart';
 
-typedef PeekAndPopCallback = void Function(PeekAndPopControllerState _peekAndPopController);
-typedef PeekAndPopMoveCallback = void Function(Offset offset);
 typedef PeekAndPopBuilder = Widget Function(BuildContext context, PeekAndPopControllerState _peekAndPopController);
+typedef PeekAndPopProcessNotifier = bool Function(PeekAndPopControllerState _peekAndPopController);
+typedef PeekAndPopProcessCallback = void Function(PeekAndPopControllerState _peekAndPopController);
+typedef PeekAndPopGestureCallback = void Function(dynamic pressDetails);
+
+enum Stage {
+	Null,
+  Done,
+}
 
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
 enum HeaderOffset{
@@ -33,7 +39,7 @@ class PeekAndPopRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
   
   final Function popTransition;
-
+  
   PeekAndPopRoute(
       this._peekAndPopController, 
       this.builder, 

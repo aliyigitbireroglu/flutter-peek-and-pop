@@ -12,14 +12,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import 'gesture_detector.dart' as MyGestureDetector;
 import 'Export.dart';
 
 ///The widget that is responsible of detecting Peek & Pop related gestures after the gesture recognition is rerouted and of ALL Peek & Pop related UI.
-///It is automatically created by the [PeekAndPopControllerState]. It uses [MyGestureDetector.GestureDetector] for reasons
+///It is automatically created by the [PeekAndPopController]. It uses [MyGestureDetector.GestureDetector] for reasons
 ///explained at [PeekAndPopController.startPressure] and [PeekAndPopController.peakPressure]
 class PeekAndPopChild extends StatefulWidget {
 	final PeekAndPopControllerState _peekAndPopController;
@@ -37,7 +36,6 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 
 	///The [AnimationController] used to set the scale of the view when it is initially pushed to the Navigator.
 	AnimationController animationController;
-	///The [Animation] controlled by the [animationController].
 	Animation<double> animation;
 
 	PeekAndPopChildState(this._peekAndPopController);
@@ -51,8 +49,6 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 				break;
 		}
 	}
-
-	void buildComplete(Duration duration) {}
 
 	@override
 	void initState() {
@@ -71,9 +67,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 				end: 1.0)
 			.animate(CurvedAnimation(
 								parent: animationController, 
-								curve: _peekAndPopController.supportsForcePress ? Curves.fastOutSlowIn : Curves.decelerate));
-		
-		SchedulerBinding.instance.addPostFrameCallback(buildComplete);
+								curve: _peekAndPopController.supportsForcePress 
+								       ? Curves.fastOutSlowIn 
+								       : Curves.decelerate));
 		
 		if (_peekAndPopController.isHero || _peekAndPopController.isDirect) animationController.value = 1;
 		else if (!_peekAndPopController.supportsForcePress) animationController.forward(from: 0.5);
@@ -96,7 +92,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 		animationController.value = 0;
 	}
 	
-	///Test conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
+	///Tests conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
 	///is not included in the layout of a [Scaffold] or a [CupertinoPageScaffold]. Therefore, moving from a Peek stage with a transparent header to a
 	///Pop stage with a non-transparent header causes visual conflicts. Use this function with [getHeaderOffset] to prevent such problems. See the 
 	///provided example for further clarification.
@@ -108,7 +104,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 		return renderBox.size;
 	}
 
-	///Test conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
+	///Tests conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
 	///is not included in the layout of a [Scaffold] or a [CupertinoPageScaffold]. Therefore, moving from a Peek stage with a transparent header to a
 	///Pop stage with a non-transparent header causes visual conflicts. Use this function with [headerSize] to prevent such problems. See the 
 	///provided example for further clarification.
@@ -128,19 +124,22 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 		return 0;
 	}
 	
-	///A simple widget for positioning the view properly. At the moment it only uses [Center] but further developments might be added.
+	///A simple widget for positioning the view properly. At the moment, it only uses [Center] but further developments might be added.
 	Widget wrapper() {
 		return Center(child: _peekAndPopController.peekAndPopBuilder(context, _peekAndPopController));
 	}
 
-	///The build function for a [PeekAndPopChildState] returns a [Stack] with three or optionally four sub widgets:
-	///I) A [Backdrop] widget for obvious reasons. The blurriness is controlled by the [PeekAndPopControllerState.animationController].
+	///The build function returns a [Stack] with three (or optionally four) widgets:
+	///I) A [Backdrop] widget for obvious reasons. The [Backdrop.sigmaX] and [Backdrop.sigmaY] are controlled by the [PeekAndPopControllerState.animationController].
 	///II) The view provided by your [PeekAndPopController.peekAndPopBuilder]. This entire widget is continuously rescaled by three different values: 
 	///   a) [animation] controls the scaling of the widget when it is initially pushed to the Navigator.
 	///   b) [PeekAndPopControllerState.animationController] controls the scaling of the widget during the Peek stage.
 	///   c) [PeekAndPopControllerState.secondaryAnimationController] controls the scaling of the widget during the Pop stage.
-	///III) An optional second view provided by your [PeekAndPopController.overlayBuiler] that is not blurred by the [Backdrop] widget.   
-	///IV) A [MyGestureDetector.GestureDetector] widget, again, for obvious reasons. 
+	///   ([PeekAndPopControllerState.tertiaryAnimationController]) controls the position of the widget during the Peek stage 
+	///   if [PeekAndPopController.moveControler] is set.)
+	///III) A [MyGestureDetector.GestureDetector] widget, again, for obvious reasons.   
+	///IV)  An optional second view provided by your [PeekAndPopController.overlayBuiler]. This entire widget is built after everything else so it avoids
+	///the [Backdrop] and the [MyGestureDetector.GestureDetector] widgets.
 	@override
 	Widget build(BuildContext context) {
 		return Stack(children: [
@@ -151,8 +150,8 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 								double sigma = _peekAndPopController.isComplete 
 								               ? 0 
 								               : animation.value == 1.0 
-								                 ? 10 
-								                 : min(_peekAndPopController.animationController.value / _peekAndPopController.treshold * 10, 10);
+								                 ? _peekAndPopController.sigma 
+								                 : min(_peekAndPopController.animationController.value / _peekAndPopController.treshold * _peekAndPopController.sigma, _peekAndPopController.sigma);
 								return Backdrop(
 												sigma, 
 												sigma, 
@@ -174,11 +173,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 			                    _peekAndPopController.secondaryAnimation.value;
 		                    return Transform.scale(
 			                          scale: secondaryScale,
-			                          child: Transform.translate(
-							                          offset: _peekAndPopController.moveController != null && !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete ? _peekAndPopController.moveController.delta : Offset.zero,
-							                          child:_peekAndPopController.useCache 
-							                                ? cachedChild 
-							                                : wrapper()));
+			                          child: _peekAndPopController.useCache 
+			                                 ? cachedChild 
+			                                 : wrapper());
 		                  },
 		                  valueListenable: _peekAndPopController.animationTrackerNotifier),
 			        builder: 
@@ -196,16 +193,25 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 												ignoring: !pressRerouted,
 												child: MyGestureDetector.GestureDetector(
 																behavior: HitTestBehavior.opaque,
-						                    startPressure: _peekAndPopController.startPressure,
+						                    startPressure: 0,
 						                    peakPressure: _peekAndPopController.peakPressure,
 						                    onForcePressStart: _peekAndPopController.supportsForcePress
-						                                       ? (ForcePressDetails forcePressDetails) {_peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);}
+						                                       ? (ForcePressDetails forcePressDetails) {
+																												_peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true); 
+																												_peekAndPopController.beginDrag(forcePressDetails);
+																											}
 						                                       : null,
 						                    onForcePressUpdate: _peekAndPopController.supportsForcePress
-						                                        ? (ForcePressDetails forcePressDetails) {_peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);}
+						                                        ? (ForcePressDetails forcePressDetails) {
+																												_peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true); 
+																												_peekAndPopController.updateDrag(forcePressDetails);
+																											}
 						                                        : null,
 						                    onForcePressEnd: _peekAndPopController.supportsForcePress
-						                                     ? (ForcePressDetails forcePressDetails) {_peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true);}
+						                                     ? (ForcePressDetails forcePressDetails) {
+																											_peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true); 
+																											_peekAndPopController.endDrag(forcePressDetails);
+																										}
 						                                     : null,
 						                    onForcePressPeak: _peekAndPopController.supportsForcePress
 						                                      ? (ForcePressDetails forcePressDetails) {_peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);}

@@ -5,11 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'nav_bar.dart' as MyNavBar;
+import 'package:snap/snap.dart';
 import 'package:peek_and_pop/peek_and_pop.dart';
 
 PeekAndPopControllerState peekAndPopController;
-GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+
+GlobalKey<SnapControllerState> snapController = GlobalKey<SnapControllerState>();
+GlobalKey view = GlobalKey();
+GlobalKey bound = GlobalKey();
+
 GlobalKey<PopUpState> popUp = GlobalKey<PopUpState>();
+
+GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+
 double screenHeight;
 
 void main() => runApp(MyApp());
@@ -43,20 +51,37 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Body extends StatelessWidget{
-	void setPeekAndPop(PeekAndPopControllerState _peekAndPopController){
+	bool willUpdatePeekAndPop(PeekAndPopControllerState _peekAndPopController){
+		return snapController.currentState == null || !snapController.currentState.isMoved(25);	
+	}
+	
+	bool willCancelPeekAndPop(PeekAndPopControllerState _peekAndPopController){
+		return snapController.currentState == null || !snapController.currentState.isMoved(25);	
+	}
+	
+	bool willFinishPeekAndPop(PeekAndPopControllerState _peekAndPopController){
+		if(snapController.currentState == null) return true;	
+		else if(snapController.currentState.isMoved(25)) return false;
+		else {
+			snapController.currentState.move(Offset(0,0));
+			return true;
+		}
+	}
+	
+	void onPushPeekAndPop(PeekAndPopControllerState _peekAndPopController){
 		peekAndPopController=_peekAndPopController;
 	}
 	
-	void move(Offset offset){
-		if(peekAndPopController == null) return;
-		if(popUp.currentState == null) return;
-		
-		if (offset.dy < -150 && popUp.currentState.animationController.status!=AnimationStatus.forward && popUp.currentState.animationController.status!=AnimationStatus.completed && popUp.currentState.animationController.value!=1){
-			popUp.currentState.animationController.forward();
-		}
-		else if(offset.dy > -150 && popUp.currentState.animationController.status!=AnimationStatus.reverse && popUp.currentState.animationController.status!=AnimationStatus.dismissed && popUp.currentState.animationController.value!=0){
-			popUp.currentState.animationController.reverse();
-		}
+	void onPressStart(dynamic pressDetails){
+		if(snapController.currentState != null) snapController.currentState.beginDrag(pressDetails);
+	}
+	
+	void onPressUpdate(dynamic pressDetails){
+		if(snapController.currentState != null) snapController.currentState.updateDrag(pressDetails);
+	}
+	
+	void onPressEnd(dynamic pressDetails){
+		if(snapController.currentState != null) snapController.currentState.endDrag(pressDetails);
 	}
 	
   @override
@@ -69,46 +94,225 @@ class Body extends StatelessWidget{
 													    normalRow(
 														    "Normal", 
 														    Colors.redAccent),
-													    normalPeekAndPopBuilder,
+													    staticNormalPeekAndPopBuilder,
 													    false,
-													    onPushPeekAndPop: setPeekAndPop,
+													    sigma: 5,
+													    onPushPeekAndPop: onPushPeekAndPop,
 													    peekScale: 0.9)),
 					    Expanded(child:PeekAndPopController(
 													    normalRow(
 														    "Moveable", 
 														    Colors.deepPurpleAccent),
-													    normalPeekAndPopBuilder,
+													    moveableNormalPeekAndPopBuilder,
 													    false,
 													    overlayBuiler: PopUp(popUp),
-													    onPushPeekAndPop: setPeekAndPop,
-													    peekScale: 0.9,
-													    moveController: MoveController(
-																						    Offset(0,-150),
-																						    Offset(0, 150),
-														                    Offset(0.0, 0.75),
-														                    Offset(0.0, 0.75),
-														                    clipTargets: [
-														                    	Offset(0, -150)
-														                    ],
-														                    callback: move))),
+													    sigma: 5,
+													    willUpdatePeekAndPop: willUpdatePeekAndPop,
+													    willCancelPeekAndPop: willCancelPeekAndPop,
+							                willFinishPeekAndPop: willFinishPeekAndPop,
+							                onPushPeekAndPop: onPushPeekAndPop,
+													    onPressStart: onPressStart,
+													    onPressUpdate: onPressUpdate,
+													    onPressEnd: onPressEnd,
+													    peekScale: 0.9)),
 					    Expanded(child:PeekAndPopController(
 													    normalRow(
 														    "Platform View", 
 														    Colors.cyan),
 													    platformViewPeekAndPopBuilder,
 													    true,
-													    onPushPeekAndPop: setPeekAndPop,
+													    sigma: 5,
+													    onPushPeekAndPop: onPushPeekAndPop,
 													    peekScale: 0.7,
 													    peekCoefficient: 0.025)),
 					    Expanded(child:PeekAndPopController(
 													    heroRow(),
 													    heroPeekAndPopBuilder,
 													    false,
-													    onPushPeekAndPop: setPeekAndPop,
+													    sigma: 5,
+													    onPushPeekAndPop: onPushPeekAndPop,
 													    isHero: true,
 													    peekScale: 0.8))
 				    ]);
   }
+}
+
+Widget normalRow(String text, Color color){
+	return Container(
+					color: Colors.transparent, 
+					child: Padding(
+									padding: EdgeInsets.all(25), 
+									child: Container(
+										      constraints: BoxConstraints.expand(),
+											    decoration: BoxDecoration(
+																	      color: color,
+																		    borderRadius: const BorderRadius.all(const Radius.circular(10.0))),
+										      child: Center(child:Text(
+																					      text,
+																					      style: TextStyle(
+																									      color: Colors.white, 
+																									      fontWeight: FontWeight.bold, 
+																									      fontSize: 25))))));
+}
+
+Widget staticNormalPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController){
+	return ClipRRect(
+					borderRadius: BorderRadius.all(Radius.circular(!_peekAndPopController.isComplete
+					                                               ? 10
+					                                               : 0)),
+					child: Scaffold(
+									key: scaffold,
+									backgroundColor: _peekAndPopController.stage != Stage.Done
+									                 ? Colors.transparent
+									                 : Colors.white, 
+									appBar: MyNavBar.CupertinoNavigationBar(
+														key: header,
+														backgroundColor: _peekAndPopController.stage != Stage.Done
+														                 ? Colors.transparent
+														                 : const Color(0xff1B1B1B),
+														middle: Text(
+																			"Peek & Pop",
+																			style: TextStyle(color: _peekAndPopController.stage != Stage.Done 
+																			                        ? Colors.transparent 
+																			                        : const Color(0xffFF9500))),
+														leading: CupertinoButton(
+																			padding: EdgeInsets.only(bottom: 2), 
+																			onPressed: () {
+																				HapticFeedback.mediumImpact();
+																				_peekAndPopController.closePeekAndPop();
+																			}, 
+																			child: Icon(
+																							CupertinoIcons.left_chevron, 
+																							size: 25, 
+																							color: _peekAndPopController.stage != Stage.Done
+																							       ? Colors.transparent
+																							       : const Color(0xffFF9500))),
+														trailing: CupertinoButton(
+																				padding: EdgeInsets.only(bottom: 2), 
+																				onPressed: () {
+																					HapticFeedback.mediumImpact();
+																					showSnackbar();
+																				}, 
+																				child: Icon(
+																								CupertinoIcons.heart_solid, 
+																								size: 25, 
+																								color: _peekAndPopController.stage != Stage.Done
+																								       ? Colors.transparent
+																								       : const Color(0xffFF9500)))), 
+									body: Transform.translate(
+													offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(HeaderOffset.NegativeHalf)), 
+													child: _peekAndPopController.stage != Stage.Done 
+													       ? normalAtPeek() 
+													       : normalAtPop())));
+}
+
+Widget moveableNormalPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController){
+	return ClipRRect(
+					borderRadius: BorderRadius.all(Radius.circular(!_peekAndPopController.isComplete
+					                                               ? 10
+					                                               : 0)),
+					child: Scaffold(
+									key: scaffold,
+									backgroundColor: _peekAndPopController.stage != Stage.Done
+									                 ? Colors.transparent
+									                 : Colors.white, 
+									appBar: MyNavBar.CupertinoNavigationBar(
+														key: header,
+														backgroundColor: _peekAndPopController.stage != Stage.Done
+														                 ? Colors.transparent
+														                 : const Color(0xff1B1B1B),
+														middle: Text(
+																			"Peek & Pop",
+																			style: TextStyle(color: _peekAndPopController.stage != Stage.Done 
+																			                        ? Colors.transparent 
+																			                        : const Color(0xffFF9500))),
+														leading: CupertinoButton(
+																			padding: EdgeInsets.only(bottom: 2), 
+																			onPressed: () {
+																				HapticFeedback.mediumImpact();
+																				_peekAndPopController.closePeekAndPop();
+																			}, 
+																			child: Icon(
+																							CupertinoIcons.left_chevron, 
+																							size: 25, 
+																							color: _peekAndPopController.stage != Stage.Done
+																							       ? Colors.transparent
+																							       : const Color(0xffFF9500))),
+														trailing: CupertinoButton(
+																				padding: EdgeInsets.only(bottom: 2), 
+																				onPressed: () {
+																					HapticFeedback.mediumImpact();
+																					showSnackbar();
+																				}, 
+																				child: Icon(
+																								CupertinoIcons.heart_solid, 
+																								size: 25, 
+																								color: _peekAndPopController.stage != Stage.Done
+																								       ? Colors.transparent
+																								       : const Color(0xffFF9500)))), 
+									body: Transform.translate(
+													offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(HeaderOffset.NegativeHalf)), 
+													child: peekAndPopController.stage != Stage.Done 
+													       ? moveableAtPeek() 
+													       : moveableAtPop())));
+}
+
+void onMove(Offset offset){
+	if(popUp.currentState == null) return;
+	
+	if (offset.dy < -125 && popUp.currentState.animationController.status!=AnimationStatus.forward && popUp.currentState.animationController.status!=AnimationStatus.completed && popUp.currentState.animationController.value!=1){
+		popUp.currentState.animationController.forward();
+	}
+	else if(offset.dy > -125 && popUp.currentState.animationController.status!=AnimationStatus.reverse && popUp.currentState.animationController.status!=AnimationStatus.dismissed && popUp.currentState.animationController.value!=0){
+		popUp.currentState.animationController.reverse();
+	}
+}
+
+void onSnap(Offset offset){
+	if(!snapController.currentState.isMoved(25))
+		peekAndPopController.cancelPeekAndPop(null);
+}
+
+Widget moveableAtPeek(){
+	return Column(
+				  crossAxisAlignment: CrossAxisAlignment.start,
+	        children: [
+	          Expanded(child:Container(
+	                          key: bound,
+	                          constraints: BoxConstraints.expand(),
+	                          color: Colors.transparent,
+								            child: Column(
+									                  mainAxisAlignment: MainAxisAlignment.center,
+									                  crossAxisAlignment: CrossAxisAlignment.center,
+																	  children:[
+																	    SnapController(
+																			  snapBuilder,
+																			  true,
+																			  view,
+																			  bound,
+																			  Offset(0.0, 0.0),
+																		    Offset(1.0, 1.0),
+																        Offset(0.0, 0.75),
+																        Offset(0.0, 0.75),
+																        snapTargets: [
+																	        SnapTarget(Pivot.topLeft, Pivot.topLeft),
+																	        SnapTarget(Pivot.topRight, Pivot.topRight),
+																	        SnapTarget(Pivot.center, Pivot.center)
+																        ],
+																			  animateSnap: true,
+																			  onMove: onMove,
+																			  onSnap: onSnap,  
+																			  key: snapController)
+																	  ])))	
+	        ]);
+}
+
+Widget snapBuilder(BuildContext context){
+	return normalAtPeek();
+}
+
+Widget moveableAtPop(){
+	return normalAtPop();
 }
 
 class PopUp extends StatefulWidget {
@@ -158,7 +362,7 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
 								              child: Padding(
 									                      padding: EdgeInsets.all(20),
 										                    child:ClipRRect(
-																								borderRadius: const BorderRadius.all(const Radius.circular(40.0)),
+																								borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
 																								child: Container(
 																												height: 200,
 																												color: Colors.transparent,
@@ -167,23 +371,32 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
 																																crossAxisAlignment: CrossAxisAlignment.center,
 																																children: [
 																																	Expanded(child:GestureDetector(
-																																									onTap: () => peekAndPopController.finishPeekAndPop(null, ignoreMoveOffset: true),
+																																									onTap: () {
+																																										animationController.reverse();
+																																										peekAndPopController.finishPeekAndPop(null);
+																																									},
 																																									child: Container(
-																																																color: Color.fromARGB(126, 255,255,255),
+																																																color: Color.fromARGB(189, 255,255,255),
 																																													      child: Center(child:Text(
 																																																								      "Pop!",
 																																																								      style: TextStyle(
 																																																												      color: Colors.black, 
+																																																												      fontWeight: FontWeight.normal,
 																																																												      fontSize: 25)))))),
 																																	Expanded(child:GestureDetector(
-																																									onTap: () => peekAndPopController.cancelPeekAndPop(null, ignoreMoveOffset: true),
+																																									onTap: () {
+																																										animationController.reverse();
+																																										Future.wait([snapController.currentState.move(Offset(0,0))]).then((_){
+																																											snapController.currentState.snap();
+																																										});
+																																									},
 																																									child: Container(
-																																																color: Color.fromARGB(126, 0,0,0),
+																																																color: Color.fromARGB(189, 189, 189, 189),
 																																													      child: Center(child:Text(
 																																																								      "Dismiss",
 																																																								      style: TextStyle(
-																																																										          decoration: null,
-																																																												      color: Colors.black, 
+																																																												      color: Colors.black,
+																																																												      fontWeight: FontWeight.normal,
 																																																												      fontSize: 25))))))
 																																	]))))));
 		        }
@@ -191,81 +404,13 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
   }
 }
 
-Widget normalRow(String text, Color color){
-	return Container(
-					color: Colors.transparent, 
-					child: Padding(
-									padding: EdgeInsets.all(25), 
-									child: Container(
-										      constraints: BoxConstraints.expand(),
-											    decoration: BoxDecoration(
-																	      color: color,
-																		    borderRadius: const BorderRadius.all(const Radius.circular(10.0))),
-										      child: Center(child:Text(
-																					      text,
-																					      style: TextStyle(
-																									      color: Colors.white, 
-																									      fontWeight: FontWeight.bold, 
-																									      fontSize: 25))))));
-}
-
-Widget normalPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController){
-	return ClipRRect(
-					borderRadius: BorderRadius.all(Radius.circular(!_peekAndPopController.isComplete
-					                                               ? 10
-					                                               : 0)),
-					child: Scaffold(
-									key: scaffold,
-									backgroundColor: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
-									                 ? Colors.transparent
-									                 : Colors.white, 
-									appBar: MyNavBar.CupertinoNavigationBar(
-														key: header,
-														backgroundColor: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
-														                 ? Colors.transparent
-														                 : const Color(0xff1B1B1B),
-														middle: Text(
-																			"Peek & Pop",
-																			style: TextStyle(color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete 
-																			                        ? Colors.transparent 
-																			                        : const Color(0xffFF9500))),
-														leading: CupertinoButton(
-																			padding: EdgeInsets.only(bottom: 2), 
-																			onPressed: () {
-																				HapticFeedback.mediumImpact();
-																				_peekAndPopController.closePeekAndPop();
-																			}, 
-																			child: Icon(
-																							CupertinoIcons.left_chevron, 
-																							size: 25, 
-																							color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
-																							       ? Colors.transparent
-																							       : const Color(0xffFF9500))),
-														trailing: CupertinoButton(
-																				padding: EdgeInsets.only(bottom: 2), 
-																				onPressed: () {
-																					HapticFeedback.mediumImpact();
-																					showSnackbar();
-																				}, 
-																				child: Icon(
-																								CupertinoIcons.heart_solid, 
-																								size: 25, 
-																								color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
-																								       ? Colors.transparent
-																								       : const Color(0xffFF9500)))), 
-									body: Transform.translate(
-													offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(HeaderOffset.NegativeHalf)), 
-													child: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete 
-													       ? normalAtPeek() 
-													       : normalAtPop())));
-}
-
 Widget normalAtPeek(){
 	return Transform.scale(
-			scale: 0.9,
-			child: Center(child:Container(
-								            constraints: const BoxConstraints.expand(height: 400),
-								            decoration: BoxDecoration(
+					key: view,
+					scale: 0.9,
+					child: Center(child:Container(
+										            constraints: const BoxConstraints.expand(height: 400),
+										            decoration: BoxDecoration(
 													                image: DecorationImage(
 																	                image: AssetImage("assets/Scenery.jpeg"), 
 																	                fit: BoxFit.cover),
@@ -280,12 +425,13 @@ Widget normalAtPeek(){
 }
 
 Widget normalAtPop(){
-	return Center(child:Container(
-						            constraints: const BoxConstraints.expand(height: 400),
-						            decoration: BoxDecoration(
-											                image: DecorationImage(
-															                image: AssetImage("assets/Scenery.jpeg"), 
-															                fit: BoxFit.cover))));
+	return Center(
+					child:Container(
+				          constraints: const BoxConstraints.expand(height: 400),
+				          decoration: BoxDecoration(
+								                image: DecorationImage(
+												                image: AssetImage("assets/Scenery.jpeg"), 
+												                fit: BoxFit.cover))));
 }
 
 Widget platformViewPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController){
@@ -394,17 +540,17 @@ Widget heroPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _pe
 					                                               : 0)),
 					child: Scaffold(
 									key: scaffold,
-									backgroundColor: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
+									backgroundColor: _peekAndPopController.stage != Stage.Done
 									                 ? Colors.transparent
 									                 : Colors.white, 
 									appBar: MyNavBar.CupertinoNavigationBar(
 														key: header,
-														backgroundColor: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
+														backgroundColor: _peekAndPopController.stage != Stage.Done
 														                 ? Colors.transparent
 														                 : const Color(0xff1B1B1B),
 														middle: Text(
 																			"Peek & Pop",
-																			style: TextStyle(color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
+																			style: TextStyle(color: _peekAndPopController.stage != Stage.Done
 																                        ? Colors.transparent
 																                        : const Color(0xffFF9500))),
 														leading: CupertinoButton(
@@ -416,7 +562,7 @@ Widget heroPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _pe
 																			child: Icon(
 																							CupertinoIcons.left_chevron, 
 																							size: 25, 
-																							color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
+																							color: _peekAndPopController.stage != Stage.Done
 																							       ? Colors.transparent
 																							       : const Color(0xffFF9500))),
 														trailing: CupertinoButton(
@@ -428,7 +574,7 @@ Widget heroPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _pe
 																				child: Icon(
 																								CupertinoIcons.heart_solid, 
 																								size: 25, 
-																								color: !_peekAndPopController.secondaryAnimationController.isAnimating && !_peekAndPopController.isComplete
+																								color: _peekAndPopController.stage != Stage.Done
 																								       ? Colors.transparent
 																								       : const Color(0xffFF9500)))), 
 									body: Transform.translate(

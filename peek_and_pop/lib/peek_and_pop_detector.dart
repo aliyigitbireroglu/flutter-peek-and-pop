@@ -14,10 +14,11 @@ import 'gesture_detector.dart' as MyGestureDetector;
 import 'Export.dart';
 
 ///The widget that is responsible of detecting Peek & Pop related gestures until the gesture recognition is rerouted to the instantiated 
-///[PeekAndPopChildState]. It is automatically created by the [PeekAndPopControllerState]. It uses [MyGestureDetector.GestureDetector] for reasons
+///[PeekAndPopChild]. It is automatically created by the [PeekAndPopController]. It uses [MyGestureDetector.GestureDetector] for reasons
 ///explained at [PeekAndPopController.startPressure] and [PeekAndPopController.peakPressure]
 class PeekAndPopDetector extends StatelessWidget {
   final PeekAndPopControllerState _peekAndPopController;
+  
   final Widget child;
 
   const PeekAndPopDetector(this._peekAndPopController, this.child);

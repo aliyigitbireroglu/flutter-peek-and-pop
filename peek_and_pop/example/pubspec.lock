@@ -80,7 +80,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.1"
+    version: "0.1.2"
   quiver:
     dependency: transitive
     description:
@@ -93,6 +93,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  snap:
+    dependency: "direct main"
+    description:
+      name: snap
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   source_span:
     dependency: transitive
     description:

@@ -1,6 +1,6 @@
 # example
 
-Example Project for peek_and_pop
+Example Project for peek_and_pop.
 
 # peek_and_pop
 
@@ -27,25 +27,25 @@ Peek & Pop implementation for Flutter based on the iOS functionality of the same
 ## Description
 
 As a fan of the iOS Peek & Pop functionality, I decided to implement it for Flutter as well. Please note that this is 
-still a 0.1.0 version so use with care. 
+still an early version so use with care. 
 
-The package has been tested on iOS but not yet on Android as I don't have access 
-to an Android device with Force Press capabilities. Help about this would be appreciated.
+The package has been tested on iOS but not yet on Android as I don't have access to an Android device with Force Press 
+capabilities. Help about this would be appreciated.
 
 For devices that don't support Force Press, the package comes with an adaptation to Long Press *however* the Long Press 
 version of this package is still under development and is not fully tested yet so consider it as a developers preview.
 
 ## 
-The power move of this package is its "gesture recognition rerouting" functionality. Normally, when a new widget
+The power move of this package is what I like to call "Gesture Recognition Rerouting". Normally, when a new widget
 with GestureDetector or similar is pushed over an initial widget used for detecting Force Press, the user has to restart 
 the gesture for Flutter to resume updating it. This package fixes that problem. As explained in the documentation:
 
 ```
-///This function is called by the instantiated [PeekAndPopChildState] once it is ready to be included in the Peek & Pop process. Perhaps the most
+///This function is called by the instantiated [PeekAndPopChild] once it is ready to be included in the Peek & Pop process. Perhaps the most
 ///essential functionality of this package also takes places in this function: The gesture recognition is rerouted from the  [PeekAndPopDetector]
-///to the instantiated [PeekAndPopChildState]. This is important for avoiding the necessity of having the user stop and restart their Force Press.
-///Instead, the [PeekAndPopControllerState] does this automatically so that the existing Force Press can continue to update even when if
-///[PeekAndPopDetector] is blocked by the view which is often the case especially when using PlatformViews. 
+///to the instantiated [PeekAndPopChild]. This is important for avoiding the necessity of having the user stop and restart their Force Press.
+///Instead, the [PeekAndPopController] does this automatically so that the existing Force Press can continue to update even when if
+///[PeekAndPopDetector] is blocked by the view which is often the case especially when using PlatformViews.
 ```
 
 ## Installation
@@ -55,13 +55,13 @@ the gesture for Flutter to resume updating it. This package fixes that problem. 
 For properly displaying PlatformViews, this package requires the latest Flutter [master](https://github.com/flutter/flutter) 
 branch. *Maybe* it will work with some other version too but tests made with the 
 [webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) seem to only properly display with the latest Flutter 
-[master](https://github.com/flutter/flutter) branch which has improved PlatformViews that allow better functionalities 
+[master](https://github.com/flutter/flutter) branch which has improved the PlatformViews that allow better functionalities 
 such as proper scaling and proper clipping.
 
     If you do not wish to use PlatformViews, you can skip this step.
 
     To use latest Flutter [master](https://github.com/flutter/flutter) branch, run the following command and then run 
-    the Flutter doctor. And that's it, it should  be fine.
+    the Flutter doctor. That's it, it should  be fine.
     
 ```
 $ git clone -b master https://github.com/flutter/flutter.git
@@ -69,9 +69,9 @@ $ ./flutter/bin/flutter --version
 ```
 
 * Step II (Required)
-This package uses a modified version of Flutter's 'binding.dart' file. Nothing essential is changed so do not worry 
+This package uses a modified version of Flutter's normal 'binding.dart'. Nothing essential is changed so do not worry 
 about the edited file interfering with your projects. The modifications are mostly about exposing variables that are by 
-default private.
+default private. The new 'binding.dart' is otherwise identical to Flutter's normal 'binding.dart'.
 
     Overwrite the contents of 
 
@@ -83,12 +83,12 @@ default private.
 
 ## Notes
 I started using and learning Flutter only some weeks ago so this package might have some parts that don't make sense, 
-that should be completely different, that could be much better, etc. Let me know! Nicely! 
+that should be completely different, that could be much better, etc. Please let me know! Nicely! 
 
 Any help, suggestion or criticism is appreciated! 
 
 Cheers.
 
 <br><br>
-<img src="https://www.cosmossoftware.coffee/Common/Images/CosmosSoftwareIconRounded.png" width="200" height="200"/>
+<img align="right" src="https://www.cosmossoftware.coffee/Common/Images/CosmosSoftwareIconTransparent.png" width="150" height="150"/>
 <br><br>
