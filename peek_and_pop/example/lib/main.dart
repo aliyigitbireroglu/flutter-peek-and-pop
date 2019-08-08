@@ -1,3 +1,6 @@
+//Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YES</string> to your Info.plist. See
+//[webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) for more info.
+
 //@formatter:off
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -269,8 +272,9 @@ void onMove(Offset offset){
 }
 
 void onSnap(Offset offset){
-	if(!snapController.currentState.isMoved(25))
+	if(!snapController.currentState.isMoved(25)){
 		peekAndPopController.cancelPeekAndPop(null);
+	}
 }
 
 Widget moveableAtPeek(){
@@ -373,12 +377,14 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
 																																	Expanded(child:GestureDetector(
 																																									onTap: () {
 																																										animationController.reverse();
-																																										peekAndPopController.finishPeekAndPop(null);
+																																										Future.wait([snapController.currentState.move(Offset(1,1))]).then((_){
+																																											peekAndPopController.finishPeekAndPop(null);
+																																										});
 																																									},
 																																									child: Container(
 																																																color: Color.fromARGB(189, 255,255,255),
 																																													      child: Center(child:Text(
-																																																								      "Pop!",
+																																																								      "Pop",
 																																																								      style: TextStyle(
 																																																												      color: Colors.black, 
 																																																												      fontWeight: FontWeight.normal,
@@ -386,8 +392,8 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
 																																	Expanded(child:GestureDetector(
 																																									onTap: () {
 																																										animationController.reverse();
-																																										Future.wait([snapController.currentState.move(Offset(0,0))]).then((_){
-																																											snapController.currentState.snap();
+																																										Future.wait([snapController.currentState.move(Offset(1,1))]).then((_){
+																																											peekAndPopController.cancelPeekAndPop(null);
 																																										});
 																																									},
 																																									child: Container(

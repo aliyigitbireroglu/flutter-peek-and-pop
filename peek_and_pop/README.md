@@ -59,6 +59,9 @@ such as proper scaling and proper clipping.
     To use latest Flutter [master](https://github.com/flutter/flutter) branch, run the following command and then run 
     the Flutter doctor. That's it, it should  be fine.
     
+    **Note**: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YES</string> to your Info.plist. See
+    [webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) for more info.
+    
 ```
 $ git clone -b master https://github.com/flutter/flutter.git
 $ ./flutter/bin/flutter --version
