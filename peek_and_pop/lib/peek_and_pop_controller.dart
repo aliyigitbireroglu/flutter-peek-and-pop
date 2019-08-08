@@ -330,7 +330,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (!isDirect) {
       pressReroutedNotifier.value = true;
       Future.delayed(Duration(milliseconds: 333), () {
-        //UNCOMMENT HERE
         reroutePress();
       });
     }
@@ -343,59 +342,59 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   void reroutePress(){
     //UNCOMMENT HERE
-    GestureBinding.instance.StartIgnoring();
-    PointerUpEvent pointerUpEvent = PointerUpEvent(
-                                      timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-                                      pointer: GestureBinding.instance.lastEvent.pointer,
-                                      device: GestureBinding.instance.lastEvent.device,
-                                      position: GestureBinding.instance.lastEvent.position,
-                                      pressure: GestureBinding.instance.lastEvent.pressure,
-                                      pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-                                      pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-                                      distance: GestureBinding.instance.lastEvent.distance,
-                                      distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-                                      size: GestureBinding.instance.lastEvent.size,
-                                      radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-                                      radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-                                      radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-                                      radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-                                      orientation: GestureBinding.instance.lastEvent.orientation,
-                                      tilt: GestureBinding.instance.lastEvent.tilt,
-                                      transform: GestureBinding.instance.lastEvent.transform);
-    GestureBinding.instance.AddToPendingPointerEvents(pointerUpEvent);
-    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
-                                            timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-                                            device: GestureBinding.instance.lastEvent.device,
-                                            position: GestureBinding.instance.lastEvent.position,
-                                            pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-                                            pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-                                            distance: GestureBinding.instance.lastEvent.distance,
-                                            distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-                                            radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-                                            radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-                                            orientation: GestureBinding.instance.lastEvent.orientation,
-                                            tilt: GestureBinding.instance.lastEvent.tilt,
-                                            transform: GestureBinding.instance.lastEvent.transform);
-    GestureBinding.instance.AddToPendingPointerEvents(pointerAddedEvent);
-    PointerDownEvent pointerDownEvent = PointerDownEvent(
-                                          timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-                                          pointer: GestureBinding.instance.lastEvent.pointer,
-                                          device: GestureBinding.instance.lastEvent.device,
-                                          position: GestureBinding.instance.lastEvent.position,
-                                          pressure: GestureBinding.instance.lastEvent.pressure,
-                                          pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-                                          pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-                                          distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-                                          size: GestureBinding.instance.lastEvent.size,
-                                          radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-                                          radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-                                          radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-                                          radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-                                          orientation: GestureBinding.instance.lastEvent.orientation,
-                                          tilt: GestureBinding.instance.lastEvent.tilt,
-                                          transform: GestureBinding.instance.lastEvent.transform);
-    GestureBinding.instance.AddToPendingPointerEvents(pointerDownEvent);
-    GestureBinding.instance.StopIgnoring();
+//    GestureBinding.instance.StartIgnoring();
+//    PointerUpEvent pointerUpEvent = PointerUpEvent(
+//                                      timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+//                                      pointer: GestureBinding.instance.lastEvent.pointer,
+//                                      device: GestureBinding.instance.lastEvent.device,
+//                                      position: GestureBinding.instance.lastEvent.position,
+//                                      pressure: GestureBinding.instance.lastEvent.pressure,
+//                                      pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+//                                      pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+//                                      distance: GestureBinding.instance.lastEvent.distance,
+//                                      distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+//                                      size: GestureBinding.instance.lastEvent.size,
+//                                      radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+//                                      radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+//                                      radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+//                                      radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+//                                      orientation: GestureBinding.instance.lastEvent.orientation,
+//                                      tilt: GestureBinding.instance.lastEvent.tilt,
+//                                      transform: GestureBinding.instance.lastEvent.transform);
+//    GestureBinding.instance.AddToPendingPointerEvents(pointerUpEvent);
+//    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
+//                                            timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+//                                            device: GestureBinding.instance.lastEvent.device,
+//                                            position: GestureBinding.instance.lastEvent.position,
+//                                            pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+//                                            pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+//                                            distance: GestureBinding.instance.lastEvent.distance,
+//                                            distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+//                                            radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+//                                            radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+//                                            orientation: GestureBinding.instance.lastEvent.orientation,
+//                                            tilt: GestureBinding.instance.lastEvent.tilt,
+//                                            transform: GestureBinding.instance.lastEvent.transform);
+//    GestureBinding.instance.AddToPendingPointerEvents(pointerAddedEvent);
+//    PointerDownEvent pointerDownEvent = PointerDownEvent(
+//                                          timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+//                                          pointer: GestureBinding.instance.lastEvent.pointer,
+//                                          device: GestureBinding.instance.lastEvent.device,
+//                                          position: GestureBinding.instance.lastEvent.position,
+//                                          pressure: GestureBinding.instance.lastEvent.pressure,
+//                                          pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+//                                          pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+//                                          distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+//                                          size: GestureBinding.instance.lastEvent.size,
+//                                          radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+//                                          radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+//                                          radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+//                                          radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+//                                          orientation: GestureBinding.instance.lastEvent.orientation,
+//                                          tilt: GestureBinding.instance.lastEvent.tilt,
+//                                          transform: GestureBinding.instance.lastEvent.transform);
+//    GestureBinding.instance.AddToPendingPointerEvents(pointerDownEvent);
+//    GestureBinding.instance.StopIgnoring();
   }
 
   @override
