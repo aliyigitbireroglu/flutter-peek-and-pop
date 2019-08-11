@@ -342,7 +342,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   void reroutePress(){
     //UNCOMMENT HERE
-//    GestureBinding.instance.StartIgnoring();
+//    GestureBinding.instance.startIgnoring();
 //    PointerUpEvent pointerUpEvent = PointerUpEvent(
 //                                      timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
 //                                      pointer: GestureBinding.instance.lastEvent.pointer,
@@ -361,7 +361,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 //                                      orientation: GestureBinding.instance.lastEvent.orientation,
 //                                      tilt: GestureBinding.instance.lastEvent.tilt,
 //                                      transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.AddToPendingPointerEvents(pointerUpEvent);
+//    GestureBinding.instance.addToPendingPointerEvents(pointerUpEvent);
 //    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
 //                                            timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
 //                                            device: GestureBinding.instance.lastEvent.device,
@@ -375,7 +375,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 //                                            orientation: GestureBinding.instance.lastEvent.orientation,
 //                                            tilt: GestureBinding.instance.lastEvent.tilt,
 //                                            transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.AddToPendingPointerEvents(pointerAddedEvent);
+//    GestureBinding.instance.addToPendingPointerEvents(pointerAddedEvent);
 //    PointerDownEvent pointerDownEvent = PointerDownEvent(
 //                                          timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
 //                                          pointer: GestureBinding.instance.lastEvent.pointer,
@@ -393,8 +393,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 //                                          orientation: GestureBinding.instance.lastEvent.orientation,
 //                                          tilt: GestureBinding.instance.lastEvent.tilt,
 //                                          transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.AddToPendingPointerEvents(pointerDownEvent);
-//    GestureBinding.instance.StopIgnoring();
+//    GestureBinding.instance.addToPendingPointerEvents(pointerDownEvent);
+//    GestureBinding.instance.stopIgnoring();
   }
 
   @override

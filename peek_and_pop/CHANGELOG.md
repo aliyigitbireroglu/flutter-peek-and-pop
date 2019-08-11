@@ -1,3 +1,7 @@
+## [0.1.4] - 11.07.2019
+
+* Fixed a minor bug.
+
 ## [0.1.3] - 07.07.2019
 
 * Fixed a bug in the example project.
