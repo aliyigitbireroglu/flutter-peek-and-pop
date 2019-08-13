@@ -8,13 +8,19 @@
 
 //@formatter:off
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+
+import 'package:transparent_image/transparent_image.dart';
 
 import 'gesture_detector.dart' as MyGestureDetector;
 import 'Export.dart';
@@ -40,6 +46,16 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   AnimationController animationController;
   Animation<double> animation;
 
+  //TODO: Document
+  Uint8List blurSnapshot = kTransparentImage;
+  ValueNotifier<int> blurTrackerNotifier = ValueNotifier<int>(0);
+
+  bool get canPeek => animationController.value == 0 && !willPeek && !isPeeking;
+  bool willPeek = false;
+  bool isPeeking = false;
+  int frameCount = 0;
+  //TODO: Document End
+
   PeekAndPopChildState(this._peekAndPopController);
 
   void animationStatusListener(AnimationStatus animationStatus) {
@@ -50,6 +66,10 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       default:
         break;
     }
+  }
+
+  void increaseFramecount(Duration duration) async {
+    frameCount++;
   }
 
   @override
@@ -82,6 +102,12 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 
   void reset() {
     animationController.value = 0;
+
+    blurSnapshot = kTransparentImage;
+
+    willPeek = false;
+    isPeeking = false;
+    frameCount = 0;
   }
 
   ///Tests conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
@@ -116,13 +142,46 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     return 0;
   }
 
+  //TODO: Document
+  void Peek() async {
+    if (canPeek) {
+      isPeeking = false;
+      willPeek = true;
+
+      int currentFramecount = frameCount;
+      blurTrackerNotifier.value++;
+
+      RenderRepaintBoundary renderBackground = background.currentContext.findRenderObject();
+      ui.Image image = await renderBackground.toImage(
+        pixelRatio: WidgetsBinding.instance.window.devicePixelRatio,
+      );
+      ByteData imageByteData = await image.toByteData(format: ImageByteFormat.png);
+      blurSnapshot = imageByteData.buffer.asUint8List();
+
+      for (int i = 0; i < 2; i++) {
+        currentFramecount = frameCount;
+        blurTrackerNotifier.value++;
+        while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: 32));
+      }
+
+      isPeeking = true;
+      willPeek = false;
+
+      currentFramecount = frameCount;
+      blurTrackerNotifier.value++;
+      while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: 16));
+      animationController.forward(from: 0.5);
+    }
+  }
+
   ///A simple widget for positioning the view properly. At the moment, it only uses [Center] but further developments might be added.
   Widget wrapper() {
     return Center(child: _peekAndPopController.peekAndPopBuilder(context, _peekAndPopController));
   }
 
+  //TODO: Document More
   ///The build function returns a [Stack] with three (or optionally four) widgets:
-  ///I) A [Backdrop] widget for obvious reasons. The [Backdrop.sigmaX] and [Backdrop.sigmaY] are controlled by the [PeekAndPopControllerState.animationController].
+  ///I) A [Blur] widget for obvious reasons. The [Blur.sigmaX] and [Blur.sigmaY] are controlled by the [PeekAndPopControllerState.animationController].
   ///II) The view provided by your [PeekAndPopController.peekAndPopBuilder]. This entire widget is continuously rescaled by three different values:
   ///   a) [animation] controls the scaling of the widget when it is initially pushed to the Navigator.
   ///   b) [PeekAndPopControllerState.animationController] controls the scaling of the widget during the Peek stage.
@@ -131,27 +190,42 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   ///   if [PeekAndPopController.moveControler] is set.)
   ///III) A [MyGestureDetector.GestureDetector] widget, again, for obvious reasons.
   ///IV)  An optional second view provided by your [PeekAndPopController.overlayBuiler]. This entire widget is built after everything else so it avoids
-  ///the [Backdrop] and the [MyGestureDetector.GestureDetector] widgets.
+  ///the [Blur] and the [MyGestureDetector.GestureDetector] widgets.
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      AnimatedBuilder(
-          animation: _peekAndPopController.animationController,
-          builder: (BuildContext context, Widget cachedChild) {
-            double sigma = _peekAndPopController.isComplete
-                ? 0
-                : animation.value == 1.0
-                    ? _peekAndPopController.sigma
-                    : min(_peekAndPopController.animationController.value / _peekAndPopController.treshold * _peekAndPopController.sigma,
-                        _peekAndPopController.sigma);
-            return Backdrop(
-                sigma, sigma, _peekAndPopController.backdropColor.withAlpha((_peekAndPopController.animationController.value * 126).ceil()));
-          }),
+      ValueListenableBuilder(
+        builder: (BuildContext context, int blurTracker, Widget cachedChild) {
+          SchedulerBinding.instance.addPostFrameCallback(increaseFramecount);
+          return Stack(children: [
+            Visibility(
+                visible: !isPeeking,
+                child: AnimatedBuilder(
+                    animation: _peekAndPopController.animationController,
+                    builder: (BuildContext context, Widget cachedChild) {
+                      double sigma = _peekAndPopController.isComplete
+                          ? 0
+                          : willPeek || isPeeking || animation.value == 1.0
+                              ? _peekAndPopController.sigma
+                              : min(_peekAndPopController.animationController.value / _peekAndPopController.treshold * _peekAndPopController.sigma,
+                                  _peekAndPopController.sigma);
+                      double alpha = sigma / _peekAndPopController.sigma;
+                      return BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                          child: Container(
+                              constraints: const BoxConstraints.expand(),
+                              color: _peekAndPopController.backdropColor.withAlpha((alpha * 126).ceil())));
+                    })),
+            Image.memory(blurSnapshot)
+          ]);
+        },
+        valueListenable: blurTrackerNotifier,
+      ),
       AnimatedBuilder(
           animation: animation,
           child: ValueListenableBuilder(
               child: _peekAndPopController.useCache ? wrapper() : null,
-              builder: (BuildContext context, double animationTracker, Widget cachedChild) {
+              builder: (BuildContext context, int animationTracker, Widget cachedChild) {
                 double secondaryScale = _peekAndPopController.peekScale +
                     _peekAndPopController.peekCoefficient * _peekAndPopController.animationController.value +
                     _peekAndPopController.secondaryAnimation.value;
@@ -219,24 +293,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                     }));
           },
           valueListenable: _peekAndPopController.pressReroutedNotifier),
-      _peekAndPopController.overlayBuilder != null ? _peekAndPopController.overlayBuilder : Container(),
+      if (_peekAndPopController.overlayBuilder != null) _peekAndPopController.overlayBuilder
     ]);
-  }
-}
-
-///A simple widget for applying blur during the Peek stage. It is basically a BackdropFilter wrapped in a cooler way.
-class Backdrop extends StatelessWidget {
-  final double sigmaX;
-  final double sigmaY;
-  final Color color;
-
-  const Backdrop(this.sigmaX, this.sigmaY, this.color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        constraints: const BoxConstraints.expand(),
-        child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: sigmaX, sigmaY: sigmaY), child: Container(constraints: const BoxConstraints.expand(), color: color)));
   }
 }
