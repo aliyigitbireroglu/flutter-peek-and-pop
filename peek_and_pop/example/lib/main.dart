@@ -10,6 +10,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'nav_bar.dart' as MyNavBar;
 import 'package:snap/snap.dart';
 import 'package:peek_and_pop/peek_and_pop.dart';
+import 'package:peek_and_pop/misc.dart' as PeekAndPopMisc;
 
 PeekAndPopControllerState peekAndPopController;
 
@@ -28,12 +29,14 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Peek & Pop Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: MyHomePage(title: 'Peek & Pop Demo'));
+    return RepaintBoundary(
+        key: PeekAndPopMisc.background,
+        child: MaterialApp(
+            title: 'Peek & Pop Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: MyHomePage(title: 'Peek & Pop Demo')));
   }
 }
 
@@ -46,12 +49,14 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+//NEW
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title: Text(widget.title)), body: Body());
   }
 }
+//NEW END
 
 class Body extends StatelessWidget {
   bool willUpdatePeekAndPop(PeekAndPopControllerState _peekAndPopController) {

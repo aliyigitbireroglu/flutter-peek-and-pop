@@ -9,6 +9,9 @@ Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YE
 
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name. 
 
+**Now up to 4x faster animations with new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is selected!
+Documentation for these new changes will be ready soon. For now, please see the example project.**
+
 ## Media
 *Videos*
 

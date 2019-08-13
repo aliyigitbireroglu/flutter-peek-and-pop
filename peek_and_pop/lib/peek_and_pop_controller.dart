@@ -31,10 +31,10 @@ class PeekAndPopController extends StatefulWidget {
   ///Set this to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process.
   final bool useCache;
 
-  ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Backdrop] widget.
+  ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Blur] widget.
   final double sigma;
 
-  ///The color to be displayed over the [Backdrop] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.animationController].
+  ///The color to be displayed over the [Blur] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.animationController].
   final Color backdropColor;
 
   ///An optional second view to be during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
@@ -137,7 +137,7 @@ class PeekAndPopController extends StatefulWidget {
       this.onPressUpdate,
       this.onPressEnd,
       this.treshold: 0.5,
-      this.startPressure: 0.2,
+      this.startPressure: 0.1,
       this.peakPressure: 0.9,
       this.peekScale: 0.5,
       this.peekCoefficient: 0.05,
@@ -218,7 +218,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///(I actually forgot why it is required but it is required.)
   DateTime lastActionTime;
 
-  ///The [AnimationController] used to set the values of the [Backdrop] widget and to set the scale of the view during the Peek stage.
+  ///The [AnimationController] used to set the values of the [Blur] widget and to set the scale of the view during the Peek stage.
   AnimationController animationController;
 
   ///The [AnimationController] used to set the scale of the view during the Pop stage for creating an iOS-Style jump effect.
@@ -227,7 +227,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   ///[ValueNotifier] for updating the view through [PeekAndPopChildState.build] as the [animationController], the [secondaryAnimationController]
   ///or the [tertiaryAnimationController] changes.
-  ValueNotifier<double> animationTrackerNotifier = ValueNotifier<double>(0.0);
+  ValueNotifier<int> animationTrackerNotifier = ValueNotifier<int>(0);
 
   ///A [ValueNotifier] for rerouting gesture recognition from [PeekAndPopDetector] to [PeekAndPopChild].
   ValueNotifier<bool> pressReroutedNotifier = ValueNotifier<bool>(false);
@@ -363,59 +363,59 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   void reroutePress() {
     //UNCOMMENT HERE
-//    GestureBinding.instance.startIgnoring();
-//    PointerUpEvent pointerUpEvent = PointerUpEvent(
-//                                      timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//                                      pointer: GestureBinding.instance.lastEvent.pointer,
-//                                      device: GestureBinding.instance.lastEvent.device,
-//                                      position: GestureBinding.instance.lastEvent.position,
-//                                      pressure: GestureBinding.instance.lastEvent.pressure,
-//                                      pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//                                      pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//                                      distance: GestureBinding.instance.lastEvent.distance,
-//                                      distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//                                      size: GestureBinding.instance.lastEvent.size,
-//                                      radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-//                                      radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-//                                      radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//                                      radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//                                      orientation: GestureBinding.instance.lastEvent.orientation,
-//                                      tilt: GestureBinding.instance.lastEvent.tilt,
-//                                      transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerUpEvent);
-//    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
-//                                            timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//                                            device: GestureBinding.instance.lastEvent.device,
-//                                            position: GestureBinding.instance.lastEvent.position,
-//                                            pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//                                            pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//                                            distance: GestureBinding.instance.lastEvent.distance,
-//                                            distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//                                            radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//                                            radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//                                            orientation: GestureBinding.instance.lastEvent.orientation,
-//                                            tilt: GestureBinding.instance.lastEvent.tilt,
-//                                            transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerAddedEvent);
-//    PointerDownEvent pointerDownEvent = PointerDownEvent(
-//                                          timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//                                          pointer: GestureBinding.instance.lastEvent.pointer,
-//                                          device: GestureBinding.instance.lastEvent.device,
-//                                          position: GestureBinding.instance.lastEvent.position,
-//                                          pressure: GestureBinding.instance.lastEvent.pressure,
-//                                          pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//                                          pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//                                          distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//                                          size: GestureBinding.instance.lastEvent.size,
-//                                          radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-//                                          radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-//                                          radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//                                          radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//                                          orientation: GestureBinding.instance.lastEvent.orientation,
-//                                          tilt: GestureBinding.instance.lastEvent.tilt,
-//                                          transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerDownEvent);
-//    GestureBinding.instance.stopIgnoring();
+    GestureBinding.instance.startIgnoring();
+    PointerUpEvent pointerUpEvent = PointerUpEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        pointer: GestureBinding.instance.lastEvent.pointer,
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressure: GestureBinding.instance.lastEvent.pressure,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distance: GestureBinding.instance.lastEvent.distance,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        size: GestureBinding.instance.lastEvent.size,
+        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerUpEvent);
+    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distance: GestureBinding.instance.lastEvent.distance,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerAddedEvent);
+    PointerDownEvent pointerDownEvent = PointerDownEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        pointer: GestureBinding.instance.lastEvent.pointer,
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressure: GestureBinding.instance.lastEvent.pressure,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        size: GestureBinding.instance.lastEvent.size,
+        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerDownEvent);
+    GestureBinding.instance.stopIgnoring();
   }
 
   @override
@@ -478,12 +478,12 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.1)
             .animate(CurvedAnimation(parent: secondaryAnimationController, curve: supportsForcePress ? Curves.elasticInOut : Curves.decelerate));
         animationTrackerNotifier.value = 0;
+        peekAndPopChild?.reset();
         peekAndPopChild = null;
         isComplete = false;
         isPushed = false;
         isDirect = false;
         ignoreAnimation = false;
-        peekAndPopChild?.reset();
         pressReroutedNotifier.value = false;
       });
 
@@ -508,11 +508,11 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
             .animate(CurvedAnimation(parent: secondaryAnimationController, curve: supportsForcePress ? Curves.elasticInOut : Curves.decelerate));
         animationTrackerNotifier.value = 0;
         peekAndPopChild = null;
+        peekAndPopChild?.reset();
         isComplete = false;
         isPushed = false;
         isDirect = false;
         ignoreAnimation = false;
-        peekAndPopChild?.reset();
         pressReroutedNotifier.value = false;
       });
 
@@ -535,8 +535,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         print("PeekAndPopChild: UpdatePeekAndPop = " + pressDetails.pressure.toString());
     }
 
-    jumpPeekAndPop(pressDetails.pressure);
-    if (pressDetails.pressure > treshold && peekAndPopChild?.animationController?.value == 0) peekAndPopChild.animationController.forward(from: 0.5);
+    if (peekAndPopChild == null || !peekAndPopChild.willPeek) jumpPeekAndPop(pressDetails.pressure);
+    if (peekAndPopChild != null && pressDetails.pressure > treshold) peekAndPopChild.Peek();
 
     if (onUpdatePeekAndPop != null) onUpdatePeekAndPop(this);
   }

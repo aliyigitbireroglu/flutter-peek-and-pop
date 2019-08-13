@@ -33,6 +33,9 @@ enum HeaderOffset {
   PositiveHalf,
 }
 
+//TODO: Document
+GlobalKey background = GlobalKey();
+
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
 GlobalKey header = GlobalKey();
 
