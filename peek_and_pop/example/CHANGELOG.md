@@ -1,3 +1,9 @@
+## [0.1.5] - 11.07.2019
+
+* Improved performance.
+
+* Improved code style.
+
 ## [0.1.4] - 11.07.2019
 
 * Fixed a minor bug.

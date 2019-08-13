@@ -1,8 +1,10 @@
-// © Cosmos Software | Ali Yigit Bireroglu All material used in the making of this code, project, program, application,
-// software et cetera (the "Intellectual Property") belongs completely and solely to Ali Yigit Bireroglu. This includes but
-// is not limited to the source code, the multimedia and other asset files. If you were granted this Intellectual Property
-// for personal use, you are obligated to include this copyright text at all times.
-// Copyright © 2019 Ali Yigit Bireroglu (https://www.cosmossoftare.coffee) All rights reserved.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// © Cosmos Software | Ali Yigit Bireroglu                                                                                                           /
+// All material used in the making of this code, project, program, application, software et cetera (the "Intellectual Property")                     /
+// belongs completely and solely to Ali Yigit Bireroglu. This includes but is not limited to the source code, the multimedia and                     /
+// other asset files. If you were granted this Intellectual Property for personal use, you are obligated to include this copyright                   /
+// text at all times.                                                                                                                                /
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //@formatter:off
 import 'dart:ui';
@@ -20,30 +22,28 @@ typedef PeekAndPopProcessCallback = void Function(PeekAndPopControllerState _pee
 typedef PeekAndPopGestureCallback = void Function(dynamic pressDetails);
 
 enum Stage {
-	Null,
+  Null,
   Done,
 }
 
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
-enum HeaderOffset{
-	Zero,
-	NegativeHalf,
-	PositiveHalf,
+enum HeaderOffset {
+  Zero,
+  NegativeHalf,
+  PositiveHalf,
 }
+
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
 GlobalKey header = GlobalKey();
 
 class PeekAndPopRoute<T> extends PageRoute<T> {
   final PeekAndPopControllerState _peekAndPopController;
-  
+
   final WidgetBuilder builder;
-  
+
   final Function popTransition;
-  
-  PeekAndPopRoute(
-      this._peekAndPopController, 
-      this.builder, 
-      this.popTransition);
+
+  PeekAndPopRoute(this._peekAndPopController, this.builder, this.popTransition);
 
   @override
   bool get opaque => false;
@@ -69,12 +69,7 @@ class PeekAndPopRoute<T> extends PageRoute<T> {
       return child;
     else {
       if (popTransition == null)
-        return SlideTransition(
-                position: Tween<Offset>(
-                            begin: const Offset(0.0, 1.0), 
-                            end: Offset.zero)
-                            .animate(animation), 
-                child: child);
+        return SlideTransition(position: Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(animation), child: child);
       else
         return popTransition(context, animation, secondaryAnimation, child);
     }
