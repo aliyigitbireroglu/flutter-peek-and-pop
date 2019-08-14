@@ -45,6 +45,9 @@ class PeekAndPopController extends StatefulWidget {
   ///An optional second view to be during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
   final Widget overlayBuiler;
 
+  ///Set this to false if you do not want your [uiChild] to be persistent on the screen until the Peek stage.
+  final bool useIndicator;
+
   ///Set this to true if your [peekAndPopBuilder] uses a [Hero] widget.
   final bool isHero;
 
@@ -125,6 +128,7 @@ class PeekAndPopController extends StatefulWidget {
       this.backdropColor: Colors.black,
       this.alpha: 126,
       this.overlayBuiler,
+      this.useIndicator: true,
       this.isHero: false,
       this.willPeekAndPopComplete,
       this.willPushPeekAndPop,
@@ -158,6 +162,7 @@ class PeekAndPopController extends StatefulWidget {
         backdropColor,
         alpha,
         overlayBuiler,
+        useIndicator,
         isHero,
         willPeekAndPopComplete,
         willPushPeekAndPop,
@@ -191,6 +196,9 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final Color backdropColor;
   final int alpha;
   final Widget overlayBuilder;
+  final bool useIndicator;
+  OverlayEntry indicator;
+  GlobalKey uiChildContainer = GlobalKey();
   final bool isHero;
 
   final PeekAndPopProcessNotifier willPeekAndPopComplete;
@@ -248,8 +256,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   ///A required precaution for behaving accordingly if the [uiChild] is tapped instead of pressed.
   bool isDirect = false;
-  
-  bool startsWithPeak=false;
+
+  bool startsWithPeak = false;
 
   ///A required precaution.
   ///(I also forgot why.)
@@ -264,7 +272,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   Function callback;
 
   ///Use this value to determine the depth of debug logging that is actually only here for myself and the Swiss scientists.
-  int _debugLevel = 5;
+  int _debugLevel = 0;
 
   PeekAndPopControllerState(
       this.uiChild,
@@ -274,6 +282,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       this.backdropColor,
       this.alpha,
       this.overlayBuilder,
+      this.useIndicator,
       this.isHero,
       this.willPeekAndPopComplete,
       this.willPushPeekAndPop,
@@ -309,7 +318,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         if (_debugLevel > 1) print("AnimationStatus.completed");
 
         if (!supportsForcePress && animationController.value != 1) {
-          peekAndPopChild.Peek();
+          peekAndPopChild.peek();
           return;
         }
 
@@ -458,7 +467,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       ..addStatusListener(secondaryAnimationStatusListener);
     secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
         .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
-    
+
     _treshold = treshold;
   }
 
@@ -519,15 +528,34 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (supportsForcePress) {
       if (firstPressIsPeak(pressDetails.pressure)) {
-        startsWithPeak=true;
+        startsWithPeak = true;
         jumpPeekAndPop(treshold * 0.99);
         updatePeekAndPop(treshold * 0.99);
-        _treshold = min(treshold*1.5, 1.0);
+        _treshold = min(treshold * 1.5, 1.0);
       } else {
+        if (useIndicator) {
+          indicator = buildIndicator(context);
+          Overlay.of(context).insert(indicator);
+        }
+
         jumpPeekAndPop(pressDetails.pressure);
         updatePeekAndPop(pressDetails.pressure);
       }
     }
+  }
+
+  OverlayEntry buildIndicator(context) {
+    RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+    return OverlayEntry(builder: (BuildContext context) {
+      return Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Transform.translate(
+            offset: renderBox.localToGlobal(Offset.zero),
+            child: SizedBox(
+                width: renderBox.size.width,
+                height: renderBox.size.height,
+                child: IgnorePointer(child: Scaffold(backgroundColor: Colors.transparent, body: uiChild))))
+      ]);
+    });
   }
 
   void updatePeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
@@ -545,7 +573,14 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     }
 
     if (!peekAndPopChild.willPeek) jumpPeekAndPop(pressDetails is double ? pressDetails : pressDetails.pressure);
-    if (pressDetails is double ? pressDetails : pressDetails.pressure > _treshold) peekAndPopChild.Peek();
+    if (pressDetails is double ? pressDetails : pressDetails.pressure > _treshold) {
+      if (useIndicator && indicator != null) {
+        indicator.remove();
+        indicator = null;
+        Overlay.of(context).setState(() {});
+      }
+      peekAndPopChild.peek();
+    }
 
     if (onUpdatePeekAndPop != null) onUpdatePeekAndPop(this);
   }
@@ -659,7 +694,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isComplete = false;
     isPushed = false;
     isDirect = false;
-    startsWithPeak=false;
+    startsWithPeak = false;
     _treshold = treshold;
     ignoreAnimation = false;
     pressReroutedNotifier.value = false;
@@ -674,6 +709,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   @override
   Widget build(BuildContext context) {
-    return PeekAndPopDetector(this, uiChild);
+    return PeekAndPopDetector(this, Container(key: uiChildContainer, child: uiChild));
   }
 }

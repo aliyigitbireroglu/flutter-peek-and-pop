@@ -153,7 +153,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     return 0;
   }
 
-  void Peek() async {
+  void peek() async {
     if (canPeek) {
       isPeeking = false;
       willPeek = true;
