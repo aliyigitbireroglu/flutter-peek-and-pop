@@ -8,6 +8,7 @@
 
 //@formatter:off
 import 'dart:ui';
+import 'dart:math';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -211,6 +212,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final PeekAndPopGestureCallback onPressEnd;
 
   final double treshold;
+  double _treshold;
   final double startPressure;
   final double peakPressure;
   final double peekScale;
@@ -246,6 +248,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   ///A required precaution for behaving accordingly if the [uiChild] is tapped instead of pressed.
   bool isDirect = false;
+  
+  bool startsWithPeak=false;
 
   ///A required precaution.
   ///(I also forgot why.)
@@ -260,7 +264,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   Function callback;
 
   ///Use this value to determine the depth of debug logging that is actually only here for myself and the Swiss scientists.
-  int _debugLevel = 0;
+  int _debugLevel = 5;
 
   PeekAndPopControllerState(
       this.uiChild,
@@ -304,7 +308,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       case AnimationStatus.completed:
         if (_debugLevel > 1) print("AnimationStatus.completed");
 
-        if (peekAndPopChild != null && !supportsForcePress && animationController.value != 1) {
+        if (!supportsForcePress && animationController.value != 1) {
           peekAndPopChild.Peek();
           return;
         }
@@ -315,7 +319,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         isComplete = true;
         pressReroutedNotifier.value = false;
 
-        callback();
+        if (callback != null) callback();
         break;
       case AnimationStatus.dismissed:
         if (_debugLevel > 1) print("AnimationStatus.dismissed");
@@ -325,7 +329,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         lastActionTime = DateTime.now();
         Navigator.of(context).pop();
 
-        callback();
+        if (callback != null) callback();
         break;
       default:
         break;
@@ -361,13 +365,15 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isPushed = true;
 
     if (!isDirect) {
-      pressReroutedNotifier.value = true;
+      Future.delayed(Duration(milliseconds: 1), () {
+        pressReroutedNotifier.value = true;
+      });
       Future.delayed(Duration(milliseconds: 333), () {
         reroutePress();
       });
     }
 
-    if (!supportsForcePress) animationController.animateTo(treshold);
+    if (!supportsForcePress) animationController.animateTo(_treshold);
 
     if (onPushPeekAndPop != null) onPushPeekAndPop(this);
   }
@@ -375,59 +381,59 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   void reroutePress() {
 // UNCOMMENT HERE
-//    GestureBinding.instance.startIgnoring();
-//    PointerUpEvent pointerUpEvent = PointerUpEvent(
-//        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//        pointer: GestureBinding.instance.lastEvent.pointer,
-//        device: GestureBinding.instance.lastEvent.device,
-//        position: GestureBinding.instance.lastEvent.position,
-//        pressure: GestureBinding.instance.lastEvent.pressure,
-//        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//        distance: GestureBinding.instance.lastEvent.distance,
-//        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//        size: GestureBinding.instance.lastEvent.size,
-//        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-//        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-//        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//        orientation: GestureBinding.instance.lastEvent.orientation,
-//        tilt: GestureBinding.instance.lastEvent.tilt,
-//        transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerUpEvent);
-//    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
-//        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//        device: GestureBinding.instance.lastEvent.device,
-//        position: GestureBinding.instance.lastEvent.position,
-//        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//        distance: GestureBinding.instance.lastEvent.distance,
-//        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//        orientation: GestureBinding.instance.lastEvent.orientation,
-//        tilt: GestureBinding.instance.lastEvent.tilt,
-//        transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerAddedEvent);
-//    PointerDownEvent pointerDownEvent = PointerDownEvent(
-//        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
-//        pointer: GestureBinding.instance.lastEvent.pointer,
-//        device: GestureBinding.instance.lastEvent.device,
-//        position: GestureBinding.instance.lastEvent.position,
-//        pressure: GestureBinding.instance.lastEvent.pressure,
-//        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
-//        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
-//        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
-//        size: GestureBinding.instance.lastEvent.size,
-//        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
-//        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
-//        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
-//        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
-//        orientation: GestureBinding.instance.lastEvent.orientation,
-//        tilt: GestureBinding.instance.lastEvent.tilt,
-//        transform: GestureBinding.instance.lastEvent.transform);
-//    GestureBinding.instance.addToPendingPointerEvents(pointerDownEvent);
-//    GestureBinding.instance.stopIgnoring();
+    GestureBinding.instance.startIgnoring();
+    PointerUpEvent pointerUpEvent = PointerUpEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        pointer: GestureBinding.instance.lastEvent.pointer,
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressure: GestureBinding.instance.lastEvent.pressure,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distance: GestureBinding.instance.lastEvent.distance,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        size: GestureBinding.instance.lastEvent.size,
+        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerUpEvent);
+    PointerAddedEvent pointerAddedEvent = PointerAddedEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distance: GestureBinding.instance.lastEvent.distance,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerAddedEvent);
+    PointerDownEvent pointerDownEvent = PointerDownEvent(
+        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
+        pointer: GestureBinding.instance.lastEvent.pointer,
+        device: GestureBinding.instance.lastEvent.device,
+        position: GestureBinding.instance.lastEvent.position,
+        pressure: GestureBinding.instance.lastEvent.pressure,
+        pressureMax: GestureBinding.instance.lastEvent.pressureMax,
+        pressureMin: GestureBinding.instance.lastEvent.pressureMin,
+        distanceMax: GestureBinding.instance.lastEvent.distanceMax,
+        size: GestureBinding.instance.lastEvent.size,
+        radiusMajor: GestureBinding.instance.lastEvent.radiusMajor,
+        radiusMinor: GestureBinding.instance.lastEvent.radiusMinor,
+        radiusMin: GestureBinding.instance.lastEvent.radiusMin,
+        radiusMax: GestureBinding.instance.lastEvent.radiusMax,
+        orientation: GestureBinding.instance.lastEvent.orientation,
+        tilt: GestureBinding.instance.lastEvent.tilt,
+        transform: GestureBinding.instance.lastEvent.transform);
+    GestureBinding.instance.addToPendingPointerEvents(pointerDownEvent);
+    GestureBinding.instance.stopIgnoring();
   }
 
   @override
@@ -452,6 +458,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       ..addStatusListener(secondaryAnimationStatusListener);
     secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
         .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
+    
+    _treshold = treshold;
   }
 
   @override
@@ -476,7 +484,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isDirect = true;
     ignoreAnimation = true;
     animationController.value = 1;
-    secondaryAnimation = Tween(begin: 1.0 - peekScale - peekCoefficient, end: 1.0 - peekScale - peekCoefficient + 0.1)
+    secondaryAnimation = Tween(begin: 1.0 - peekScale - peekCoefficient, end: 1.0 - peekScale - peekCoefficient + 0.025)
         .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
     secondaryAnimationController.value = 0;
 
@@ -488,6 +496,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
     });
+  }
+
+  bool firstPressIsPeak(double pressure) {
+    return pressure >= _treshold * 0.5;
   }
 
   void pushPeekAndPop(dynamic pressDetails) {
@@ -505,14 +517,25 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
     });
 
-    if (supportsForcePress) jumpPeekAndPop(pressDetails.pressure);
+    if (supportsForcePress) {
+      if (firstPressIsPeak(pressDetails.pressure)) {
+        startsWithPeak=true;
+        jumpPeekAndPop(treshold * 0.99);
+        updatePeekAndPop(treshold * 0.99);
+        _treshold = min(treshold*1.5, 1.0);
+      } else {
+        jumpPeekAndPop(pressDetails.pressure);
+        updatePeekAndPop(pressDetails.pressure);
+      }
+    }
   }
 
   void updatePeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
     if (willUpdatePeekAndPop != null && !willUpdatePeekAndPop(this)) return;
+    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
     if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
-    if (!supportsForcePress) return;
     if (secondaryAnimationController.isAnimating) return;
+    if (!supportsForcePress) return;
 
     if (_debugLevel > 2) {
       if (!isFromOverlayEntry)
@@ -521,15 +544,17 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         print("PeekAndPopChild: UpdatePeekAndPop = " + pressDetails.pressure.toString());
     }
 
-    if (peekAndPopChild == null || !peekAndPopChild.willPeek) jumpPeekAndPop(pressDetails.pressure);
-    if (peekAndPopChild != null && pressDetails.pressure > treshold) peekAndPopChild.Peek();
+    if (!peekAndPopChild.willPeek) jumpPeekAndPop(pressDetails is double ? pressDetails : pressDetails.pressure);
+    if (pressDetails is double ? pressDetails : pressDetails.pressure > _treshold) peekAndPopChild.Peek();
 
     if (onUpdatePeekAndPop != null) onUpdatePeekAndPop(this);
   }
 
   void cancelPeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
     if (willCancelPeekAndPop != null && !willCancelPeekAndPop(this)) return;
-    if (isComplete || !isPushed || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 0) {
       if (!isFromOverlayEntry)
@@ -539,14 +564,17 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     }
 
     drivePeekAndPop(false);
-    if (peekAndPopChild?.animationController?.value != 0) peekAndPopChild.animationController.reverse();
+    if (peekAndPopChild.animationController.value != 0) peekAndPopChild.animationController.reverse();
 
     if (onCancelPeekAndPop != null) onCancelPeekAndPop(this);
   }
 
   void finishPeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
     if (willFinishPeekAndPop != null && !willFinishPeekAndPop(this)) return;
+    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
     if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (secondaryAnimationController.isAnimating) return;
+    if (peekAndPopChild.animationController.status != AnimationStatus.completed) return;
 
     drivePeekAndPop(true);
 
@@ -556,7 +584,9 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///Use this function instead of using the Navigator.
   void closePeekAndPop() {
     if (willClosePeekAndPop != null && !willClosePeekAndPop(this)) return;
-    if (!isComplete || !isPushed || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (!isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 0) print("ClosePeekAndPop");
 
@@ -572,7 +602,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (forward) {
       animationController.forward(from: animationController.value);
       secondaryAnimationController.forward(from: 0);
-      if (!useCache) peekAndPopChild.setState(() {});
+      if (!useCache && peekAndPopChild != null && peekAndPopChild.isReady) peekAndPopChild.setState(() {}); //TODO: Check.
     } else {
       animationController.reverse();
       secondaryAnimationController.reverse();
@@ -621,7 +651,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   void reset() {
     animationController.value = 0;
     secondaryAnimationController.value = 0;
-    secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.1)
+    secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
         .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
     animationTrackerNotifier.value = 0;
     peekAndPopChild?.reset();
@@ -629,6 +659,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isComplete = false;
     isPushed = false;
     isDirect = false;
+    startsWithPeak=false;
+    _treshold = treshold;
     ignoreAnimation = false;
     pressReroutedNotifier.value = false;
   }

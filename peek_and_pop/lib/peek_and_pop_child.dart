@@ -57,10 +57,16 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   ///See [blurSnapshot].
   ValueNotifier<int> blurTrackerNotifier = ValueNotifier<int>(0);
 
-  bool get canPeek => animationController.value == 0 && !willPeek && !isPeeking;
+  bool isReady = false;
+  bool get canPeek => isReady && animationController.value == 0 && !willPeek && !isPeeking;
   bool willPeek = false;
   bool isPeeking = false;
+
+  int optimisationVersion = 1;
   int frameCount = 0;
+  int loopCount = 1;
+  int primaryDelay = 1;
+  int secondaryDelay = 2;
 
   PeekAndPopChildState(this._peekAndPopController);
 
@@ -75,6 +81,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   }
 
   void increaseFramecount(Duration duration) async {
+    isReady = true;
     frameCount++;
   }
 
@@ -151,20 +158,26 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       isPeeking = false;
       willPeek = true;
 
-      int currentFramecount = frameCount;
-      blurTrackerNotifier.value++;
+      int currentFramecount = 0;
+
+      for (int i = 0; i < loopCount; i++) {
+        currentFramecount = frameCount;
+        blurTrackerNotifier.value++;
+        while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: primaryDelay));
+      }
 
       RenderRepaintBoundary renderBackground = background.currentContext.findRenderObject();
       ui.Image image = await renderBackground.toImage(
-        pixelRatio: WidgetsBinding.instance.window.devicePixelRatio,
+        pixelRatio:
+            optimisationVersion == 0 ? WidgetsBinding.instance.window.devicePixelRatio : WidgetsBinding.instance.window.devicePixelRatio * 0.1,
       );
       ByteData imageByteData = await image.toByteData(format: ImageByteFormat.png);
       blurSnapshot = imageByteData.buffer.asUint8List();
 
-      for (int i = 0; i < 2; i++) {
+      for (int i = 0; i < loopCount; i++) {
         currentFramecount = frameCount;
         blurTrackerNotifier.value++;
-        while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: 32));
+        while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: primaryDelay));
       }
 
       isPeeking = true;
@@ -172,7 +185,13 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 
       currentFramecount = frameCount;
       blurTrackerNotifier.value++;
-      while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: 16));
+
+      for (int i = 0; i < 2; i++) {
+        currentFramecount = frameCount;
+        blurTrackerNotifier.value++;
+        while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: secondaryDelay));
+      }
+
       animationController.forward(from: 0.5);
 
       if (!_peekAndPopController.supportsForcePress) _peekAndPopController.finishPeekAndPop(null);
@@ -221,7 +240,16 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                               constraints: const BoxConstraints.expand(),
                               color: _peekAndPopController.backdropColor.withAlpha((alpha * _peekAndPopController.alpha).ceil())));
                     })),
-            Image.memory(blurSnapshot)
+            optimisationVersion == 0
+                ? Image.memory(blurSnapshot, gaplessPlayback: true)
+                : Transform.scale(
+                    scale: 1.001,
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      width: WidgetsBinding.instance.window.physicalSize.width,
+                      height: WidgetsBinding.instance.window.physicalSize.height,
+                      decoration: BoxDecoration(image: DecorationImage(image: MemoryImage(blurSnapshot), fit: BoxFit.cover)),
+                    ))
           ]);
         },
         valueListenable: blurTrackerNotifier,
