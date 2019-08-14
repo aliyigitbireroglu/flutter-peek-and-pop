@@ -219,7 +219,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                           filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
                           child: Container(
                               constraints: const BoxConstraints.expand(),
-                              color: _peekAndPopController.backdropColor.withAlpha((alpha * 126).ceil())));
+                              color: _peekAndPopController.backdropColor.withAlpha((alpha * _peekAndPopController.alpha).ceil())));
                     })),
             Image.memory(blurSnapshot)
           ]);
