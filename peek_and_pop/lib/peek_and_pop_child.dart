@@ -46,22 +46,28 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   AnimationController animationController;
   Animation<double> animation;
 
-  //TODO: Document
+  ///I noticed that a fullscreen blur effect via the [BackdropFilter] widget is not good to use while running the animations required for the Peek &
+  ///Pop process as it causes a noticeable drop in the framerate- especially for devices with high resolutions. During a mostly static view, the
+  ///drop is acceptable. However, once the animations start running, this drop causes a visual disturbance. To prevent this, a new optimised blur
+  ///effect algorithm is implemented. Now, the [BackdropFilter] widget is only used until the animations are about to start. At that moment, it is
+  ///replaced by a static image. Therefore, to capture this image, your root CupertinoApp/MaterialApp MUST be wrapped in a [RepaintBoundary] widget
+  ///which uses the [background] key. As a result, the Peek & Pop process is now up to 4x more fluent.
   Uint8List blurSnapshot = kTransparentImage;
+
+  ///See [blurSnapshot].
   ValueNotifier<int> blurTrackerNotifier = ValueNotifier<int>(0);
 
   bool get canPeek => animationController.value == 0 && !willPeek && !isPeeking;
   bool willPeek = false;
   bool isPeeking = false;
   int frameCount = 0;
-  //TODO: Document End
 
   PeekAndPopChildState(this._peekAndPopController);
 
   void animationStatusListener(AnimationStatus animationStatus) {
     switch (animationStatus) {
       case AnimationStatus.forward:
-        HapticFeedback.heavyImpact();
+        HapticFeedback.mediumImpact();
         break;
       default:
         break;
@@ -79,12 +85,10 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 333), lowerBound: 0, upperBound: 1)
       ..addListener(() {})
       ..addStatusListener(animationStatusListener);
-    animation = Tween(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: animationController, curve: _peekAndPopController.supportsForcePress ? Curves.fastOutSlowIn : Curves.decelerate));
+    animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: animationController, curve: Curves.fastOutSlowIn));
 
-    if (_peekAndPopController.isHero || _peekAndPopController.isDirect)
-      animationController.value = 1;
-    else if (!_peekAndPopController.supportsForcePress) animationController.forward(from: 0.5);
+    if (_peekAndPopController.isHero || _peekAndPopController.isDirect) animationController.value = 1;
+    //else if (!_peekAndPopController.supportsForcePress) animationController.forward(from: 0.5);
 
     _peekAndPopController.pushComplete(this);
   }
@@ -142,7 +146,6 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     return 0;
   }
 
-  //TODO: Document
   void Peek() async {
     if (canPeek) {
       isPeeking = false;
@@ -171,6 +174,8 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       blurTrackerNotifier.value++;
       while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: 16));
       animationController.forward(from: 0.5);
+
+      if (!_peekAndPopController.supportsForcePress) _peekAndPopController.finishPeekAndPop(null);
     }
   }
 
@@ -179,9 +184,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     return Center(child: _peekAndPopController.peekAndPopBuilder(context, _peekAndPopController));
   }
 
-  //TODO: Document More
   ///The build function returns a [Stack] with three (or optionally four) widgets:
-  ///I) A [Blur] widget for obvious reasons. The [Blur.sigmaX] and [Blur.sigmaY] are controlled by the [PeekAndPopControllerState.animationController].
+  ///I) The new optimised blur effect algorithm (see [blurSnapshot]), for obvious reasons. The sigma values are controlled by the
+  ///[PeekAndPopControllerState.animationController].
   ///II) The view provided by your [PeekAndPopController.peekAndPopBuilder]. This entire widget is continuously rescaled by three different values:
   ///   a) [animation] controls the scaling of the widget when it is initially pushed to the Navigator.
   ///   b) [PeekAndPopControllerState.animationController] controls the scaling of the widget during the Peek stage.
@@ -267,11 +272,21 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                             _peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
                           }
                         : null,
-                    onLongPressStart: (LongPressStartDetails longPressStartDetails) {},
+                    onLongPressStart: _peekAndPopController.supportsForcePress
+                        ? null
+                        : (LongPressStartDetails longPressStartDetails) {
+                            //_peekAndPopController.beginDrag(longPressStartDetails);
+                          },
+                    onLongPressMoveUpdate: _peekAndPopController.supportsForcePress
+                        ? null
+                        : (LongPressMoveUpdateDetails longPressMoveUpdateDetails) {
+                            //_peekAndPopController.updateDrag(longPressMoveUpdateDetails);
+                          },
                     onLongPressEnd: _peekAndPopController.supportsForcePress
                         ? null
                         : (LongPressEndDetails longPressEndDetails) {
                             _peekAndPopController.cancelPeekAndPop(longPressEndDetails, isFromOverlayEntry: true);
+                            //_peekAndPopController.endDrag(longPressEndDetails);
                           },
                     onVerticalDragStart: (DragStartDetails dragStartDetails) {
                       _peekAndPopController.beginDrag(dragStartDetails);

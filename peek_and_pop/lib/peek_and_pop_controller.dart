@@ -34,8 +34,12 @@ class PeekAndPopController extends StatefulWidget {
   ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Blur] widget.
   final double sigma;
 
-  ///The color to be displayed over the [Blur] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.animationController].
+  ///The color to be displayed over the [Blur] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.animationController]
+  ///based on your [alpha] value.
   final Color backdropColor;
+
+  ///The maximum alpha to be applied to your [backdropColor] by the [PeekAndPopControllerState.animationController].
+  final int alpha;
 
   ///An optional second view to be during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
   final Widget overlayBuiler;
@@ -108,17 +112,17 @@ class PeekAndPopController extends StatefulWidget {
   ///0.05 is recommended based on observations made by Swiss scientists.
   final double peekCoefficient;
 
+  //TODO Change the name of this variable as it can cause confusion.
   ///The transition to be used when:
   ///   a) The view is opened directly.
   ///   b) The view is closed.
   ///   (A default [SlideTransition] is provided.)
   final Function popTransition;
 
-  //TODO Change the name of this variable as it can cause confusion.
-
   const PeekAndPopController(this.uiChild, this.peekAndPopBuilder, this.useCache,
       {this.sigma: 10,
       this.backdropColor: Colors.black,
+      this.alpha: 126,
       this.overlayBuiler,
       this.isHero: false,
       this.willPeekAndPopComplete,
@@ -136,7 +140,7 @@ class PeekAndPopController extends StatefulWidget {
       this.onPressStart,
       this.onPressUpdate,
       this.onPressEnd,
-      this.treshold: 0.5,
+      this.treshold: 0.35,
       this.startPressure: 0.1,
       this.peakPressure: 0.9,
       this.peekScale: 0.5,
@@ -151,6 +155,7 @@ class PeekAndPopController extends StatefulWidget {
         useCache,
         sigma,
         backdropColor,
+        alpha,
         overlayBuiler,
         isHero,
         willPeekAndPopComplete,
@@ -183,6 +188,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final bool useCache;
   final double sigma;
   final Color backdropColor;
+  final int alpha;
   final Widget overlayBuilder;
   final bool isHero;
 
@@ -262,6 +268,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       this.useCache,
       this.sigma,
       this.backdropColor,
+      this.alpha,
       this.overlayBuilder,
       this.isHero,
       this.willPeekAndPopComplete,
@@ -297,7 +304,12 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       case AnimationStatus.completed:
         if (_debugLevel > 1) print("AnimationStatus.completed");
 
-        HapticFeedback.heavyImpact();
+        if (peekAndPopChild != null && !supportsForcePress && animationController.value != 1) {
+          peekAndPopChild.Peek();
+          return;
+        }
+
+        HapticFeedback.mediumImpact();
 
         lastActionTime = DateTime.now();
         isComplete = true;
@@ -308,7 +320,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       case AnimationStatus.dismissed:
         if (_debugLevel > 1) print("AnimationStatus.dismissed");
 
-        HapticFeedback.heavyImpact();
+        HapticFeedback.mediumImpact();
 
         lastActionTime = DateTime.now();
         Navigator.of(context).pop();
@@ -355,14 +367,14 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       });
     }
 
-    if (!supportsForcePress) drivePeekAndPop(true);
+    if (!supportsForcePress) animationController.animateTo(treshold);
 
     if (onPushPeekAndPop != null) onPushPeekAndPop(this);
   }
 
   ///See [pushComplete].
   void reroutePress() {
-    //UNCOMMENT HERE
+// UNCOMMENT HERE
 //    GestureBinding.instance.startIgnoring();
 //    PointerUpEvent pointerUpEvent = PointerUpEvent(
 //        timeStamp: Duration(milliseconds: GestureBinding.instance.lastEvent.timeStamp.inMilliseconds + 100),
@@ -465,27 +477,14 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     ignoreAnimation = true;
     animationController.value = 1;
     secondaryAnimation = Tween(begin: 1.0 - peekScale - peekCoefficient, end: 1.0 - peekScale - peekCoefficient + 0.1)
-        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: supportsForcePress ? Curves.elasticInOut : Curves.decelerate));
+        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
     secondaryAnimationController.value = 0;
 
     Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this), popTransition)).whenComplete(() {
-      HapticFeedback.heavyImpact();
+      HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();
-      Future.delayed(Duration(milliseconds: supportsForcePress ? 666 : 666 * 10), () {
-        animationController.value = 0;
-        secondaryAnimationController.value = 0;
-        secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.1)
-            .animate(CurvedAnimation(parent: secondaryAnimationController, curve: supportsForcePress ? Curves.elasticInOut : Curves.decelerate));
-        animationTrackerNotifier.value = 0;
-        peekAndPopChild?.reset();
-        peekAndPopChild = null;
-        isComplete = false;
-        isPushed = false;
-        isDirect = false;
-        ignoreAnimation = false;
-        pressReroutedNotifier.value = false;
-      });
+      Future.delayed(Duration(milliseconds: 666), reset);
 
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
     });
@@ -498,23 +497,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("PushPeekAndPop");
 
     Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this), popTransition)).whenComplete(() {
-      HapticFeedback.heavyImpact();
+      HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();
-      Future.delayed(Duration(milliseconds: supportsForcePress ? 666 : 666 * 10), () {
-        animationController.value = 0;
-        secondaryAnimationController.value = 0;
-        secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.1)
-            .animate(CurvedAnimation(parent: secondaryAnimationController, curve: supportsForcePress ? Curves.elasticInOut : Curves.decelerate));
-        animationTrackerNotifier.value = 0;
-        peekAndPopChild = null;
-        peekAndPopChild?.reset();
-        isComplete = false;
-        isPushed = false;
-        isDirect = false;
-        ignoreAnimation = false;
-        pressReroutedNotifier.value = false;
-      });
+      Future.delayed(Duration(milliseconds: 666), reset);
 
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
     });
@@ -632,10 +618,26 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (onPressEnd != null) onPressEnd(pressDetails);
   }
 
+  void reset() {
+    animationController.value = 0;
+    secondaryAnimationController.value = 0;
+    secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.1)
+        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
+    animationTrackerNotifier.value = 0;
+    peekAndPopChild?.reset();
+    peekAndPopChild = null;
+    isComplete = false;
+    isPushed = false;
+    isDirect = false;
+    ignoreAnimation = false;
+    pressReroutedNotifier.value = false;
+  }
+
   ///A value for tracking the stage of the Peek & Pop process.
   Stage get stage {
     if (!isPushed) return Stage.Null;
-    if (secondaryAnimationController.isAnimating || isComplete) return Stage.Done;
+    if ((supportsForcePress && secondaryAnimationController.isAnimating) || isComplete) return Stage.Done;
+    return Stage.Null;
   }
 
   @override

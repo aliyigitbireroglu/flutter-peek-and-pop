@@ -1,3 +1,13 @@
+## [0.1.6] - 12.07.2019
+
+* Missing documentation added.
+
+* How-to-Use for README added.
+
+* Fine tuning for a smoother Peek & Pop process.
+
+* Some adjustments made for the Long Press version (still under development).
+
 ## [0.1.5] - 11.07.2019
 
 * Improved performance.

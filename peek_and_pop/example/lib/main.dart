@@ -6,8 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:webview_flutter/webview_flutter.dart';
 import 'nav_bar.dart' as MyNavBar;
+
 import 'package:snap/snap.dart';
 import 'package:peek_and_pop/peek_and_pop.dart';
 import 'package:peek_and_pop/misc.dart' as PeekAndPopMisc;
@@ -18,9 +20,8 @@ GlobalKey<SnapControllerState> snapController = GlobalKey<SnapControllerState>()
 GlobalKey view = GlobalKey();
 GlobalKey bound = GlobalKey();
 
-GlobalKey<PopUpState> popUp = GlobalKey<PopUpState>();
-
 GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+GlobalKey<PopUpState> popUp = GlobalKey<PopUpState>();
 
 double screenHeight;
 
@@ -49,14 +50,12 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-//NEW
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title: Text(widget.title)), body: Body());
   }
 }
-//NEW END
 
 class Body extends StatelessWidget {
   bool willUpdatePeekAndPop(PeekAndPopControllerState _peekAndPopController) {
@@ -445,4 +444,3 @@ Widget heroPeekAndPop() {
 void showSnackbar() {
   scaffold.currentState.showSnackBar(SnackBar(content: Text("Everything works as usual.")));
 }
-//@formatter:on

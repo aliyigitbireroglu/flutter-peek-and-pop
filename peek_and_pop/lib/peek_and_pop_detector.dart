@@ -49,7 +49,7 @@ class PeekAndPopDetector extends StatelessWidget {
                           _peekAndPopController.updatePeekAndPop(forcePressDetails);
                         }
                       : null,
-                  onForcePressEnd: (ForcePressDetails forcePressDetails) {},
+                  onForcePressEnd: null,
                   onForcePressPeak: _peekAndPopController.supportsForcePress
                       ? (ForcePressDetails forcePressDetails) {
                           _peekAndPopController.finishPeekAndPop(forcePressDetails);
@@ -60,7 +60,7 @@ class PeekAndPopDetector extends StatelessWidget {
                       : (LongPressStartDetails longPressStartDetails) {
                           _peekAndPopController.pushPeekAndPop(longPressStartDetails);
                         },
-                  onLongPressEnd: (LongPressEndDetails longPressEndDetails) {},
+                  onLongPressEnd: null,
                   child: cachedChild));
         },
         valueListenable: _peekAndPopController.pressReroutedNotifier);

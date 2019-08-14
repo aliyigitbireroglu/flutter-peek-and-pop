@@ -9,9 +9,15 @@ Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YE
 
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name. 
 
-**Now up to 4x faster animations with new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is selected!
-Documentation for these new changes will be ready soon. For now, please see the example project.**
+**Now up to 4x faster animations with the new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is 
+selected!**
 
+1. [Media](#media) 
+2. [Description](#description) 
+3. [Installation](#installation) 
+4. [How-to-Use](#howtouse)
+
+<a name="media"></a>
 ## Media
 *Videos*
 
@@ -30,6 +36,7 @@ Documentation for these new changes will be ready soon. For now, please see the 
 
 **IMPORTANT**: Read more for installation details.
 
+<a name="description"></a>
 ## Description
 
 As a fan of the iOS Peek & Pop functionality, I decided to implement it for Flutter as well. Please note that this is 
@@ -54,6 +61,7 @@ the gesture for Flutter to resume updating it. This package fixes that problem. 
 ///[PeekAndPopDetector] is blocked by the view which is often the case especially when using PlatformViews.
 ```
 
+<a name="installation"></a>
 ## Installation
 *It is easy. Don't worry.* 
 
@@ -89,6 +97,27 @@ default private. The new 'binding.dart' is otherwise identical to Flutter's norm
     with the contents of 'binding.dart' provided by this package. Then uncomment the parts marked "UNCOMMENT HERE" in 
     'peek_and_pop_controller.dart'. These parts had to be commented for cosmetic reasons as Pub considers them to be errors 
     due to the previously explained 'binding.dart' modifications. 
+    
+<a name="howtouse"></a>
+## How-to-Use
+*Also easy.* 
+
+The example project is, I hope, very self-explanatory but there is one very important rule. As explained in the documentation:
+
+```
+///I noticed that a fullscreen blur effect via the [BackdropFilter] widget is not good to use while running the animations required for the Peek &
+///Pop process as it causes a noticeable drop in the framerate- especially for devices with high resolutions. During a mostly static view, the
+///drop is acceptable. However, once the animations start running, this drop causes a visual disturbance. To prevent this, a new optimised blur
+///effect algorithm is implemented. Now, the [BackdropFilter] widget is only used until the animations are about to start. At that moment, it is
+///replaced by a static image. Therefore, to capture this image, your root CupertinoApp/MaterialApp MUST be wrapped in a [RepaintBoundary] widget
+///which uses the [background] key. As a result, the Peek & Pop process is now up to 4x more fluent.
+```
+
+TL;DR: Wrap your root CupertinoApp/MaterialApp in a RepaintBoundary widget and use the background key from 'misc.dart'. This is required for the new 
+optimised blur effect algorithm.
+
+Then start using the PeekAndPopController widgets with your parameters! This widget is highly customisable  so I **STRONGLY** recommend that you 
+read the documentation for each file provided by this package for making full use of the capabilities.
 
 ## Notes
 I started using and learning Flutter only some weeks ago so this package might have some parts that don't make sense, 

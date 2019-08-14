@@ -33,7 +33,9 @@ enum HeaderOffset {
   PositiveHalf,
 }
 
-//TODO: Document
+///The new optimised blur effect algorithm during the Peek & Pop process requires your root CupertinoApp/MaterialApp to be wrapped in a
+///[RepaintBoundary] widget which uses this key. See README, [PeekAndPopChildState.blurSnapshot] or [PeekAndPopChildState.blurTrackerNotifier] for more
+///info.
 GlobalKey background = GlobalKey();
 
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
