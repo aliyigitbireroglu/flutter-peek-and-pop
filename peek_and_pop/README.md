@@ -16,7 +16,7 @@ selected!**
 ## Media
 *Videos*
 
-* [v0.1.7 Mixed]()
+* [v0.1.7 Mixed](https://youtu.be/wOWCV7HJzwc)
 
 * [v0.1.0 Mixed](https://youtu.be/G5QLwGtcb1I)
 * [v0.0.1 Normal](https://youtu.be/PaEpU31z_7Q) 

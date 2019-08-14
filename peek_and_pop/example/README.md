@@ -9,6 +9,8 @@ Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YE
 
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name. 
 
+**The "Indicator" feature is now added. See the [Media](#media) for examples.**
+
 **Now up to 4x faster animations with the new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is 
 selected!**
 
@@ -21,9 +23,9 @@ selected!**
 ## Media
 *Videos*
 
+* [v0.1.7 Mixed](https://youtu.be/wOWCV7HJzwc)
+
 * [v0.1.0 Mixed](https://youtu.be/G5QLwGtcb1I)
-
-
 * [v0.0.1 Normal](https://youtu.be/PaEpU31z_7Q) 
 * [v0.0.1 Moveable](https://youtu.be/3TjCFwHoOiE)
 * [v0.0.1 Platform View](https://youtu.be/489YB-QuJ3k)

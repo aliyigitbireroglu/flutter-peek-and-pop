@@ -1,8 +1,8 @@
 ## [0.1.7] - 14.07.2019
 
-* "Indicator" feature added. See this [video]() for examples.
+* "Indicator" feature added. See this [video](https://youtu.be/wOWCV7HJzwc) for examples.
 
-* Improved performance.
+* Further improved performance.
 
 * Further fine tuning for a smoother Peek & Pop process.
 

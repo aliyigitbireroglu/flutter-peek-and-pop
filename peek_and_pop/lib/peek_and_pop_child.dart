@@ -55,18 +55,22 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   Uint8List blurSnapshot = kTransparentImage;
 
   ///See [blurSnapshot].
-  ValueNotifier<int> blurTrackerNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> blurTrackerNotifier = ValueNotifier<int>(0);
 
   bool isReady = false;
   bool get canPeek => isReady && animationController.value == 0 && !willPeek && !isPeeking;
   bool willPeek = false;
   bool isPeeking = false;
 
-  int optimisationVersion = 1;
+  final int optimisationVersion = 1;
   int frameCount = 0;
-  int loopCount = 1;
-  int primaryDelay = 1;
-  int secondaryDelay = 2;
+  final int loopCount = 1;
+  final int primaryDelay = 1;
+  final int secondaryDelay = 2;
+
+  final double upscaleCoefficient = 1.01;
+  double width = -1;
+  double height = -1;
 
   PeekAndPopChildState(this._peekAndPopController);
 
@@ -127,7 +131,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   ///provided example for further clarification.
   ///IMPORTANT: It is essential that you use the provided [header] key for the header for this function to work.
   Size get headerSize {
-    if (header.currentContext == null) return Size(0, 0);
+    if (header.currentContext == null) return const Size(0, 0);
 
     RenderBox renderBox = header.currentContext.findRenderObject();
     return renderBox.size;
@@ -217,6 +221,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   ///the [Blur] and the [MyGestureDetector.GestureDetector] widgets.
   @override
   Widget build(BuildContext context) {
+    if (width == -1) width = MediaQuery.of(context).size.width;
+    if (height == -1) height = MediaQuery.of(context).size.height;
+
     return Stack(children: [
       ValueListenableBuilder(
         builder: (BuildContext context, int blurTracker, Widget cachedChild) {
@@ -242,14 +249,13 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                     })),
             optimisationVersion == 0
                 ? Image.memory(blurSnapshot, gaplessPlayback: true)
-                : Transform.scale(
-                    scale: 1.001,
-                    alignment: Alignment.topLeft,
-                    child: Container(
-                      width: WidgetsBinding.instance.window.physicalSize.width,
-                      height: WidgetsBinding.instance.window.physicalSize.height,
-                      decoration: BoxDecoration(image: DecorationImage(image: MemoryImage(blurSnapshot), fit: BoxFit.cover)),
-                    ))
+                : height > width
+                    ? Row(
+                        children: [SizedBox(width: width * upscaleCoefficient, height: height, child: Image.memory(blurSnapshot, fit: BoxFit.fill))],
+                      )
+                    : Column(
+                        children: [SizedBox(width: width, height: height * upscaleCoefficient, child: Image.memory(blurSnapshot, fit: BoxFit.fill))],
+                      )
           ]);
         },
         valueListenable: blurTrackerNotifier,

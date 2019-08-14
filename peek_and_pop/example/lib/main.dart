@@ -16,12 +16,12 @@ import 'package:peek_and_pop/misc.dart' as PeekAndPopMisc;
 
 PeekAndPopControllerState peekAndPopController;
 
-GlobalKey<SnapControllerState> snapController = GlobalKey<SnapControllerState>();
-GlobalKey view = GlobalKey();
-GlobalKey bound = GlobalKey();
+final GlobalKey<SnapControllerState> snapController = GlobalKey<SnapControllerState>();
+final GlobalKey view = GlobalKey();
+final GlobalKey bound = GlobalKey();
 
-GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
-GlobalKey<PopUpState> popUp = GlobalKey<PopUpState>();
+final GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+final GlobalKey<PopUpState> popUp = GlobalKey<PopUpState>();
 
 double screenHeight;
 
@@ -72,7 +72,7 @@ class Body extends StatelessWidget {
     else if (snapController.currentState.isMoved(25))
       return false;
     else {
-      snapController.currentState.move(Offset(0, 0));
+      snapController.currentState.move(Offset.zero);
       return true;
     }
   }
@@ -129,7 +129,7 @@ Widget normalRow(String text, Color color) {
           child: Container(
               constraints: BoxConstraints.expand(),
               decoration: BoxDecoration(color: color, borderRadius: const BorderRadius.all(const Radius.circular(10.0))),
-              child: Center(child: Text(text, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25))))));
+              child: Center(child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25))))));
 }
 
 Widget staticNormalPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
@@ -232,11 +232,12 @@ Widget moveableAtPeek() {
             constraints: BoxConstraints.expand(),
             color: Colors.transparent,
             child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-              SnapController(snapBuilder, true, view, bound, Offset(0.0, 0.0), Offset(1.0, 1.0), Offset(0.0, 0.75), Offset(0.0, 0.75),
+              SnapController(
+                  snapBuilder, true, view, bound, const Offset(0.0, 0.0), const Offset(1.0, 1.0), const Offset(0.0, 0.75), const Offset(0.0, 0.75),
                   snapTargets: [
-                    SnapTarget(Pivot.topLeft, Pivot.topLeft),
-                    SnapTarget(Pivot.topRight, Pivot.topRight),
-                    SnapTarget(Pivot.center, Pivot.center)
+                    const SnapTarget(Pivot.topLeft, Pivot.topLeft),
+                    const SnapTarget(Pivot.topRight, Pivot.topRight),
+                    const SnapTarget(Pivot.center, Pivot.center)
                   ],
                   animateSnap: true,
                   onMove: onMove,
@@ -299,7 +300,7 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
                                     child: GestureDetector(
                                         onTap: () {
                                           animationController.reverse();
-                                          Future.wait([snapController.currentState.move(Offset(1, 1))]).then((_) {
+                                          Future.wait([snapController.currentState.move(const Offset(1, 1))]).then((_) {
                                             peekAndPopController.finishPeekAndPop(null);
                                           });
                                         },
@@ -307,7 +308,7 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
                                             color: Color.fromARGB(189, 255, 255, 255),
                                             child: Center(
                                                 child: Text("Pop",
-                                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 25)))))),
+                                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 25)))))),
                                 Expanded(
                                     child: GestureDetector(
                                         onTap: () {
@@ -320,7 +321,7 @@ class PopUpState extends State<PopUp> with SingleTickerProviderStateMixin {
                                             color: Color.fromARGB(189, 189, 189, 189),
                                             child: Center(
                                                 child: Text("Dismiss",
-                                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 25))))))
+                                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 25))))))
                               ])))))));
         });
   }
@@ -333,24 +334,25 @@ Widget normalAtPeek() {
       child: Center(
           child: Container(
               constraints: const BoxConstraints.expand(height: 400),
-              decoration: BoxDecoration(
-                  image: DecorationImage(image: AssetImage("assets/Scenery.jpeg"), fit: BoxFit.cover),
+              decoration: const BoxDecoration(
+                  image: const DecorationImage(image: const AssetImage("assets/Scenery.jpeg"), fit: BoxFit.cover),
                   borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
-                  boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0, 15), spreadRadius: -5, blurRadius: 20)]))));
+                  boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(0, 15), spreadRadius: -5, blurRadius: 20)]))));
 }
 
 Widget normalAtPop() {
   return Center(
       child: Container(
           constraints: const BoxConstraints.expand(height: 400),
-          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/Scenery.jpeg"), fit: BoxFit.cover))));
+          decoration: const BoxDecoration(image: const DecorationImage(image: const AssetImage("assets/Scenery.jpeg"), fit: BoxFit.cover))));
 }
 
 Widget platformViewPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
   return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(!_peekAndPopController.isComplete ? 10 : 0)),
       child: Container(
-          decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0, 15), spreadRadius: -5, blurRadius: 30)]),
+          decoration:
+              const BoxDecoration(boxShadow: [const BoxShadow(color: Colors.black, offset: const Offset(0, 15), spreadRadius: -5, blurRadius: 30)]),
           child: Scaffold(
               key: scaffold,
               backgroundColor: Colors.white,
@@ -362,7 +364,7 @@ Widget platformViewPeekAndPopBuilder(BuildContext context, PeekAndPopControllerS
                           color: _peekAndPopController.stage != Stage.Done ? Colors.transparent : Colors.black,
                           width: 0.0,
                           style: BorderStyle.solid)),
-                  middle: Text("Peek & Pop", style: TextStyle(color: const Color(0xffFF9500))),
+                  middle: Text("Peek & Pop", style: const TextStyle(color: const Color(0xffFF9500))),
                   leading: CupertinoButton(
                       padding: EdgeInsets.only(bottom: 2),
                       onPressed: () {
@@ -414,10 +416,10 @@ Widget heroRow() {
           padding: EdgeInsets.all(25),
           child: Container(
               constraints: BoxConstraints.expand(),
-              decoration: BoxDecoration(color: Colors.greenAccent, borderRadius: const BorderRadius.all(const Radius.circular(10.0))),
+              decoration: const BoxDecoration(color: Colors.greenAccent, borderRadius: const BorderRadius.all(const Radius.circular(10.0))),
               child: Center(
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                Text("Hero", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25)),
+                Text("Hero", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25)),
                 Padding(padding: EdgeInsets.all(50), child: Hero(tag: "Superhero", child: Image.asset("assets/Hero.png")))
               ])))));
 }
