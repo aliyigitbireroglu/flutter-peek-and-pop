@@ -5,6 +5,7 @@ Example Project for peek_and_pop.
 Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YES</string> to your Info.plist. See
 [webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) for more info.
 
+
 # peek_and_pop
 
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name. 
@@ -19,12 +20,13 @@ selected!**
 3. [Installation](#installation) 
 4. [How-to-Use](#howtouse)
 
+
 <a name="media"></a>
 ## Media
 *Videos*
 
-* [v0.1.7 Mixed](https://youtu.be/wOWCV7HJzwc)
-
+* [v0.1.7](https://youtu.be/wOWCV7HJzwc)
+<br><br>
 * [v0.1.0 Mixed](https://youtu.be/G5QLwGtcb1I)
 * [v0.0.1 Normal](https://youtu.be/PaEpU31z_7Q) 
 * [v0.0.1 Moveable](https://youtu.be/3TjCFwHoOiE)
@@ -38,9 +40,9 @@ selected!**
 
 **IMPORTANT**: Read more for installation details.
 
+
 <a name="description"></a>
 ## Description
-
 As a fan of the iOS Peek & Pop functionality, I decided to implement it for Flutter as well. Please note that this is 
 still an early version so use with care. 
 
@@ -62,6 +64,7 @@ the gesture for Flutter to resume updating it. This package fixes that problem. 
 ///Instead, the [PeekAndPopController] does this automatically so that the existing Force Press can continue to update even when if
 ///[PeekAndPopDetector] is blocked by the view which is often the case especially when using PlatformViews.
 ```
+
 
 <a name="installation"></a>
 ## Installation
@@ -88,18 +91,19 @@ $ ./flutter/bin/flutter --version
 ```
 
 * Step II (Required)
-This package uses a modified version of Flutter's normal 'binding.dart'. Nothing essential is changed so do not worry 
+This package uses a modified version of Flutter's normal "binding.dart". Nothing essential is changed so do not worry 
 about the edited file interfering with your projects. The modifications are mostly about exposing variables that are by 
-default private. The new 'binding.dart' is otherwise identical to Flutter's normal 'binding.dart'.
+default private. The new "binding.dart" is otherwise identical to Flutter's normal "binding.dart".
 
     Overwrite the contents of 
 
     *(your_flutter_directory)/packages/flutter/lib/src/gestures/binding.dart*
 
-    with the contents of 'binding.dart' provided by this package. Then uncomment the parts marked "UNCOMMENT HERE" in 
-    'peek_and_pop_controller.dart'. These parts had to be commented for cosmetic reasons as Pub considers them to be errors 
-    due to the previously explained 'binding.dart' modifications. 
-    
+    with the contents of "binding.dart" provided by this package. Then uncomment the parts marked "UNCOMMENT HERE" in 
+    "peek_and_pop_controller.dart". These parts had to be commented for cosmetic reasons as Pub considers them to be errors 
+    due to the previously explained "binding.dart" modifications. 
+
+
 <a name="howtouse"></a>
 ## How-to-Use
 *Also easy.* 
@@ -115,11 +119,12 @@ The example project is, I hope, very self-explanatory but there is one very impo
 ///which uses the [background] key. As a result, the Peek & Pop process is now up to 4x more fluent.
 ```
 
-TL;DR: Wrap your root CupertinoApp/MaterialApp in a RepaintBoundary widget and use the background key from 'misc.dart'. This is required for the new 
+TL;DR: Wrap your root CupertinoApp/MaterialApp in a RepaintBoundary widget and use the background key from "misc.dart". This is required for the new 
 optimised blur effect algorithm.
 
-Then start using the PeekAndPopController widgets with your parameters! This widget is highly customisable  so I **STRONGLY** recommend that you 
+Then start using the PeekAndPopController widget with your parameters! This widget is highly customisable so I **STRONGLY** recommend that you 
 read the documentation for each file provided by this package for making full use of the capabilities.
+
 
 ## Notes
 I started using and learning Flutter only some weeks ago so this package might have some parts that don't make sense, 

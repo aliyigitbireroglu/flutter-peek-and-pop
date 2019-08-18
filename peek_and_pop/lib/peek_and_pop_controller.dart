@@ -124,7 +124,8 @@ class PeekAndPopController extends StatefulWidget {
   final Function popTransition;
 
   const PeekAndPopController(this.uiChild, this.peekAndPopBuilder, this.useCache,
-      {this.sigma: 10,
+      {Key key,
+      this.sigma: 10,
       this.backdropColor: Colors.black,
       this.alpha: 126,
       this.overlayBuiler,
@@ -150,7 +151,8 @@ class PeekAndPopController extends StatefulWidget {
       this.peakPressure: 0.9,
       this.peekScale: 0.5,
       this.peekCoefficient: 0.05,
-      this.popTransition});
+      this.popTransition})
+      : super(key: key);
 
   @override
   PeekAndPopControllerState createState() {
@@ -548,12 +550,14 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
     return OverlayEntry(builder: (BuildContext context) {
       return Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Transform.translate(
-            offset: renderBox.localToGlobal(Offset.zero),
-            child: SizedBox(
-                width: renderBox.size.width,
-                height: renderBox.size.height,
-                child: IgnorePointer(child: Scaffold(backgroundColor: Colors.transparent, body: uiChild))))
+        Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Transform.translate(
+              offset: renderBox.localToGlobal(Offset.zero),
+              child: SizedBox(
+                  width: renderBox.size.width,
+                  height: renderBox.size.height,
+                  child: IgnorePointer(child: Scaffold(backgroundColor: Colors.transparent, body: uiChild))))
+        ])
       ]);
     });
   }
@@ -675,7 +679,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (_debugLevel > 2) print("UpdateDrag");
 
-    if (onPressStart != null) onPressUpdate(pressDetails);
+    if (onPressUpdate != null) onPressUpdate(pressDetails);
   }
 
   void endDrag(dynamic pressDetails) {

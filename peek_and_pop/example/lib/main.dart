@@ -121,6 +121,28 @@ class Body extends StatelessWidget {
   }
 }
 
+void onMove(Offset offset) {
+  if (popUp.currentState == null) return;
+
+  if (offset.dy < -125 &&
+      popUp.currentState.animationController.status != AnimationStatus.forward &&
+      popUp.currentState.animationController.status != AnimationStatus.completed &&
+      popUp.currentState.animationController.value != 1) {
+    popUp.currentState.animationController.forward();
+  } else if (offset.dy > -125 &&
+      popUp.currentState.animationController.status != AnimationStatus.reverse &&
+      popUp.currentState.animationController.status != AnimationStatus.dismissed &&
+      popUp.currentState.animationController.value != 0) {
+    popUp.currentState.animationController.reverse();
+  }
+}
+
+void onSnap(Offset offset) {
+  if (!snapController.currentState.isMoved(25)) {
+    peekAndPopController.cancelPeekAndPop(null);
+  }
+}
+
 Widget normalRow(String text, Color color) {
   return Container(
       color: Colors.transparent,
@@ -199,29 +221,7 @@ Widget moveableNormalPeekAndPopBuilder(BuildContext context, PeekAndPopControlle
                       size: 25, color: _peekAndPopController.stage != Stage.Done ? Colors.transparent : const Color(0xffFF9500)))),
           body: Transform.translate(
               offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(HeaderOffset.NegativeHalf)),
-              child: peekAndPopController.stage != Stage.Done ? moveableAtPeek() : moveableAtPop())));
-}
-
-void onMove(Offset offset) {
-  if (popUp.currentState == null) return;
-
-  if (offset.dy < -125 &&
-      popUp.currentState.animationController.status != AnimationStatus.forward &&
-      popUp.currentState.animationController.status != AnimationStatus.completed &&
-      popUp.currentState.animationController.value != 1) {
-    popUp.currentState.animationController.forward();
-  } else if (offset.dy > -125 &&
-      popUp.currentState.animationController.status != AnimationStatus.reverse &&
-      popUp.currentState.animationController.status != AnimationStatus.dismissed &&
-      popUp.currentState.animationController.value != 0) {
-    popUp.currentState.animationController.reverse();
-  }
-}
-
-void onSnap(Offset offset) {
-  if (!snapController.currentState.isMoved(25)) {
-    peekAndPopController.cancelPeekAndPop(null);
-  }
+              child: _peekAndPopController.stage != Stage.Done ? moveableAtPeek() : moveableAtPop())));
 }
 
 Widget moveableAtPeek() {
@@ -233,22 +233,19 @@ Widget moveableAtPeek() {
             color: Colors.transparent,
             child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
               SnapController(
-                  snapBuilder, true, view, bound, const Offset(0.0, 0.0), const Offset(1.0, 1.0), const Offset(0.0, 0.75), const Offset(0.0, 0.75),
+                  normalAtPeek(), true, view, bound, const Offset(0.0, 0.0), const Offset(1.0, 1.0), const Offset(0.0, 0.75), const Offset(0.0, 0.75),
                   snapTargets: [
                     const SnapTarget(Pivot.topLeft, Pivot.topLeft),
                     const SnapTarget(Pivot.topRight, Pivot.topRight),
                     const SnapTarget(Pivot.center, Pivot.center)
                   ],
                   animateSnap: true,
+                  useFlick: false,
                   onMove: onMove,
                   onSnap: onSnap,
                   key: snapController)
             ])))
   ]);
-}
-
-Widget snapBuilder(BuildContext context) {
-  return normalAtPeek();
 }
 
 Widget moveableAtPop() {

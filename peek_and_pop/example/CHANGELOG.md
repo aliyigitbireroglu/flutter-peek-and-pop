@@ -1,4 +1,10 @@
-## [0.1.7] - 14.07.2019
+## [0.1.8] - 18.08.2019
+
+* Example project adapted to the updated [snap](https://pub.dev/packages/snap).
+
+* Minor changes.
+
+## [0.1.7] - 14.08.2019
 
 * "Indicator" feature added. See this [video](https://youtu.be/wOWCV7HJzwc) for examples.
 
@@ -6,7 +12,7 @@
 
 * Further fine tuning for a smoother Peek & Pop process.
 
-## [0.1.6] - 12.07.2019
+## [0.1.6] - 12.08.2019
 
 * Missing documentation added.
 
@@ -16,17 +22,17 @@
 
 * Some adjustments made for the Long Press version (still under development).
 
-## [0.1.5] - 11.07.2019
+## [0.1.5] - 11.08.2019
 
 * Improved performance.
 
 * Improved code style.
 
-## [0.1.4] - 11.07.2019
+## [0.1.4] - 11.08.2019
 
 * Fixed a minor bug.
 
-## [0.1.3] - 07.07.2019
+## [0.1.3] - 07.08.2019
 
 * Fixed a bug in the example project.
 
@@ -35,7 +41,7 @@
   **Note**: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YES</string> to your Info.plist. See
   [webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) for more info.
 
-## [0.1.2] - 07.07.2019
+## [0.1.2] - 07.08.2019
 
 * [snap](https://pub.dev/packages/snap) is now implemented directly to the example and it works flawlessly.
 
@@ -47,11 +53,11 @@
 
 * Improved documentation.
 
-## [0.1.1] - 06.07.2019
+## [0.1.1] - 06.08.2019
 
 * Improved code style.
 
-## [0.1.0] - 06.07.2019
+## [0.1.0] - 06.08.2019
 
 * Improved "PeekAndPopMoveController".
 
@@ -59,7 +65,7 @@
 
 * Improved documentation.
 
-## [0.0.1] - 05.07.2019
+## [0.0.1] - 05.08.2019
 
 * Initial release. Known issues are:
 
