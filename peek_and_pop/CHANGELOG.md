@@ -4,6 +4,8 @@
 
 * Minor changes.
 
+* [0.1.8+1] An important notice is added to the README.
+
 ## [0.1.7] - 14.08.2019
 
 * "Indicator" feature added. See this [video](https://youtu.be/wOWCV7HJzwc) for examples.

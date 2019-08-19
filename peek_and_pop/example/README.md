@@ -8,11 +8,15 @@ Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YE
 
 # peek_and_pop
 
-Peek & Pop implementation for Flutter based on the iOS functionality of the same name. 
+Peek & Pop implementation for Flutter based on the iOS functionality of the same name.
 
-**The "Indicator" feature is now added. See the [Media](#media) for examples.**
+## Notice
+**People have expressed worries concerning modifying Flutter's normal "binding.dart". Don't worry- v0.1.9 which will be released soon will not require this modification. For now, you can temporarily follow the installation instructions and start developing with v0.1.8. When it is updated, you can revert your 'binding.dart' to its original format.** 
+* * *
 
-**Now up to 4x faster animations with the new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is 
+* **The "Indicator" feature is now added. See the [Media](#media) for examples.**
+
+* **Now up to 4x faster animations with the new optimised blur effect algorithm during the Peek & Pop process- regardless of what sigma value is 
 selected!**
 
 1. [Media](#media) 
