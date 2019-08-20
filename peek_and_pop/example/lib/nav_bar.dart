@@ -3,16 +3,11 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/cupertino/button.dart';
-import 'package:flutter/src/cupertino/icons.dart';
-import 'package:flutter/src/cupertino/page_scaffold.dart';
-import 'package:flutter/src/cupertino/route.dart';
-import 'package:flutter/src/cupertino/theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 
 const _HeroTag _defaultHeroTag = _HeroTag(null);

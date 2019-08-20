@@ -1,3 +1,13 @@
+## [0.1.9] - 20.08.2019
+
+* Modifications to Flutter's normal "binding.dart" are no longer required!
+
+* The Long Press version is temporarily removed. It will be added back with the next update.
+
+* Code excerpt added to the README.
+
+* Updated the README.
+
 ## [0.1.8] - 18.08.2019
 
 * Example project adapted to the updated [snap](https://pub.dev/packages/snap).

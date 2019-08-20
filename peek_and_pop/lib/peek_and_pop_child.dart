@@ -5,8 +5,8 @@
 // other asset files. If you were granted this Intellectual Property for personal use, you are obligated to include this copyright                   /
 // text at all times.                                                                                                                                /
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 //@formatter:off
+
 import 'dart:ui';
 import 'dart:ui' as ui;
 import 'dart:math';
@@ -98,8 +98,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       ..addStatusListener(animationStatusListener);
     animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: animationController, curve: Curves.fastOutSlowIn));
 
-    if (_peekAndPopController.isHero || _peekAndPopController.isDirect) animationController.value = 1;
-    //else if (!_peekAndPopController.supportsForcePress) animationController.forward(from: 0.5);
+    if (_peekAndPopController.isDirect || _peekAndPopController.isHero) animationController.value = 1;
 
     _peekAndPopController.pushComplete(this);
   }
@@ -197,12 +196,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       }
 
       animationController.forward(from: 0.5);
-
-      if (!_peekAndPopController.supportsForcePress) _peekAndPopController.finishPeekAndPop(null);
     }
   }
 
-  ///A simple widget for positioning the view properly. At the moment, it only uses [Center] but further developments might be added.
   Widget wrapper() {
     return Center(child: _peekAndPopController.peekAndPopBuilder(context, _peekAndPopController));
   }
@@ -272,56 +268,33 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
               },
               valueListenable: _peekAndPopController.animationTrackerNotifier),
           builder: (BuildContext context, Widget cachedChild) {
-            double primaryScale = animation.value;
+            double primaryScale = _peekAndPopController.isHero ? 1.0 : animation.value;
             return Transform.scale(scale: primaryScale, child: cachedChild);
           }),
       ValueListenableBuilder(
-          builder: (BuildContext context, bool pressRerouted, Widget cachedChild) {
+          builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
+            if (pressRerouted == 1) _peekAndPopController.unlockPress();
             return IgnorePointer(
-                ignoring: !pressRerouted,
+                ignoring: pressRerouted != 1,
                 child: MyGestureDetector.GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     startPressure: 0,
                     peakPressure: _peekAndPopController.peakPressure,
-                    onForcePressStart: _peekAndPopController.supportsForcePress
-                        ? (ForcePressDetails forcePressDetails) {
-                            _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                            _peekAndPopController.beginDrag(forcePressDetails);
-                          }
-                        : null,
-                    onForcePressUpdate: _peekAndPopController.supportsForcePress
-                        ? (ForcePressDetails forcePressDetails) {
-                            _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                            _peekAndPopController.updateDrag(forcePressDetails);
-                          }
-                        : null,
-                    onForcePressEnd: _peekAndPopController.supportsForcePress
-                        ? (ForcePressDetails forcePressDetails) {
-                            _peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                            _peekAndPopController.endDrag(forcePressDetails);
-                          }
-                        : null,
-                    onForcePressPeak: _peekAndPopController.supportsForcePress
-                        ? (ForcePressDetails forcePressDetails) {
-                            _peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                          }
-                        : null,
-                    onLongPressStart: _peekAndPopController.supportsForcePress
-                        ? null
-                        : (LongPressStartDetails longPressStartDetails) {
-                            //_peekAndPopController.beginDrag(longPressStartDetails);
-                          },
-                    onLongPressMoveUpdate: _peekAndPopController.supportsForcePress
-                        ? null
-                        : (LongPressMoveUpdateDetails longPressMoveUpdateDetails) {
-                            //_peekAndPopController.updateDrag(longPressMoveUpdateDetails);
-                          },
-                    onLongPressEnd: _peekAndPopController.supportsForcePress
-                        ? null
-                        : (LongPressEndDetails longPressEndDetails) {
-                            _peekAndPopController.cancelPeekAndPop(longPressEndDetails, isFromOverlayEntry: true);
-                            //_peekAndPopController.endDrag(longPressEndDetails);
-                          },
+                    onForcePressStart: (ForcePressDetails forcePressDetails) {
+                      _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                      _peekAndPopController.beginDrag(forcePressDetails);
+                    },
+                    onForcePressUpdate: (ForcePressDetails forcePressDetails) {
+                      _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                      _peekAndPopController.updateDrag(forcePressDetails);
+                    },
+                    onForcePressEnd: (ForcePressDetails forcePressDetails) {
+                      _peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                      _peekAndPopController.endDrag(forcePressDetails);
+                    },
+                    onForcePressPeak: (ForcePressDetails forcePressDetails) {
+                      _peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                    },
                     onVerticalDragStart: (DragStartDetails dragStartDetails) {
                       _peekAndPopController.beginDrag(dragStartDetails);
                     },

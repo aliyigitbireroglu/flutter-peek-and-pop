@@ -1,6 +1,6 @@
 name: peek_and_pop
 description: Peek & Pop implementation for Flutter based on the iOS functionality of the same name.
-version: 0.1.8+1
+version: 0.1.9
 author: Ali Yigit Bireroglu <aliyigitbireroglu@gmail.com>
 repository: https://github.com/aliyigitbireroglu/flutter-peek-and-pop
 homepage: https://www.cosmossoftware.coffee

@@ -5,8 +5,8 @@
 // other asset files. If you were granted this Intellectual Property for personal use, you are obligated to include this copyright                   /
 // text at all times.                                                                                                                                /
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 //@formatter:off
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +29,9 @@ class PeekAndPopDetector extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
         child: child,
-        builder: (BuildContext context, bool pressRerouted, Widget cachedChild) {
+        builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
           return IgnorePointer(
-              ignoring: pressRerouted,
+              ignoring: pressRerouted != 0,
               child: MyGestureDetector.GestureDetector(
                   startPressure: _peekAndPopController.startPressure,
                   peakPressure: _peekAndPopController.peakPressure,
@@ -39,28 +39,18 @@ class PeekAndPopDetector extends StatelessWidget {
                     HapticFeedback.mediumImpact();
                     _peekAndPopController.peekAndPopComplete();
                   },
-                  onForcePressStart: _peekAndPopController.supportsForcePress
-                      ? (ForcePressDetails forcePressDetails) {
-                          _peekAndPopController.pushPeekAndPop(forcePressDetails);
-                        }
-                      : null,
-                  onForcePressUpdate: _peekAndPopController.supportsForcePress
-                      ? (ForcePressDetails forcePressDetails) {
-                          _peekAndPopController.updatePeekAndPop(forcePressDetails);
-                        }
-                      : null,
-                  onForcePressEnd: null,
-                  onForcePressPeak: _peekAndPopController.supportsForcePress
-                      ? (ForcePressDetails forcePressDetails) {
-                          _peekAndPopController.finishPeekAndPop(forcePressDetails);
-                        }
-                      : null,
-                  onLongPressStart: _peekAndPopController.supportsForcePress
-                      ? null
-                      : (LongPressStartDetails longPressStartDetails) {
-                          _peekAndPopController.pushPeekAndPop(longPressStartDetails);
-                        },
-                  onLongPressEnd: null,
+                  onForcePressStart: (ForcePressDetails forcePressDetails) {
+                    _peekAndPopController.pushPeekAndPop(forcePressDetails);
+                  },
+                  onForcePressUpdate: (ForcePressDetails forcePressDetails) {
+                    _peekAndPopController.updatePeekAndPop(forcePressDetails);
+                  },
+                  onForcePressEnd: (ForcePressDetails forcePressDetails) {
+                    _peekAndPopController.cancelPeekAndPop(forcePressDetails);
+                  },
+                  onForcePressPeak: (ForcePressDetails forcePressDetails) {
+                    _peekAndPopController.finishPeekAndPop(forcePressDetails);
+                  },
                   child: cachedChild));
         },
         valueListenable: _peekAndPopController.pressReroutedNotifier);
