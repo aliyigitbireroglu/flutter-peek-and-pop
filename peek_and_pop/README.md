@@ -10,7 +10,6 @@ Peek & Pop implementation for Flutter based on the iOS functionality of the same
 <img src="https://img.shields.io/badge/Cosmos%20Software-Love%20Code-red"/>
 <br>
 
-
 [![Pub](https://img.shields.io/pub/v/peek_and_pop?color=g)](https://pub.dev/packages/peek_and_pop)
 [![License](https://img.shields.io/github/license/aliyigitbireroglu/flutter-peek-and-pop?color=blue)](https://github.com/aliyigitbireroglu/flutter-peek-and-pop/blob/master/LICENSE)
 
