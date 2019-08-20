@@ -10,6 +10,9 @@ Note: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YE
 
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name.
 
+**It is highly recommended to read the documentation and run the example project on a real device to fully understand and inspect the full range
+ of capabilities.**
+
 [Media](#media) | [Description](#description) | [Installation](#installation) | [How-to-Use](#howtouse)
 
 <img src="https://img.shields.io/badge/Cosmos%20Software-Love%20Code-red"/>
@@ -164,10 +167,6 @@ adapt to the stage of the Peek & Pop process. Once the Peek & Pop process is ini
 instance of the created PeekAndPopController can be retrieved for further actions. The maximum scale of the widget created by the  
 staticNormalPeekAndPopBuilder build function  will not exceed 0.9 during the Peek stage.
 
-* * *
-##It is highly recommended to read the documentation and the example project.
-
-<br>
 
 ## Notes
 I started using and learning Flutter only some weeks ago so this package might have some parts that don't make sense, that should be completely 
