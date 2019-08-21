@@ -53,7 +53,7 @@ Watch on **Youtube**:
 [v0.1.0 Mixed](https://youtu.be/G5QLwGtcb1I) 
 [v0.0.1 Normal](https://youtu.be/PaEpU31z_7Q) | [v0.0.1 Moveable](https://youtu.be/3TjCFwHoOiE) | [v0.0.1 Platform View](https://youtu.be/489YB-QuJ3k) | [v0.0.1 Hero](https://youtu.be/36DAwnFKSKI)
 <br><br>
-<img src="https://www.cosmossoftware.coffee/Common/Portfolio/GIFs/FlutterPeekAndPop.gif" height="450"/>
+<img src="https://www.cosmossoftware.coffee/Common/Portfolio/GIFs/FlutterPeekAndPop.gif" max-height="450"/>
 <br><br>
 
 
