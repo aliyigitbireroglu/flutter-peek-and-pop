@@ -41,7 +41,7 @@ class PeekAndPopController extends StatefulWidget {
   ///The maximum alpha to be applied to your [backdropColor] by the [PeekAndPopControllerState.animationController].
   final int alpha;
 
-  ///An optional second view to be during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
+  ///An optional second view to be displayed during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
   final Widget overlayBuiler;
 
   ///Set this to false if you do not want your [uiChild] to be persistent on the screen until the Peek stage.
@@ -50,22 +50,22 @@ class PeekAndPopController extends StatefulWidget {
   ///Set this to true if your [peekAndPopBuilder] uses a [Hero] widget.
   final bool isHero;
 
-  ///The callback for when the Peek & Pop process is about to successfully complete. You can return false to block the next part.
+  ///The callback for when the Peek & Pop process is about to successfully complete. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willPeekAndPopComplete;
 
-  ///The callback for when the view is about to be initially pushed to the Navigator. You can return false to block the next part.
+  ///The callback for when the view is about to be initially pushed to the Navigator. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willPushPeekAndPop;
 
-  ///The callback for when the state of the view is about to be updated. You can return false to block the next part.
+  ///The callback for when the state of the view is about to be updated. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willUpdatePeekAndPop;
 
-  ///The callback for when the Peek & Pop process is about to be cancelled. You can return false to block the next part.
+  ///The callback for when the Peek & Pop process is about to be cancelled. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willCancelPeekAndPop;
 
-  ///The callback for when the view is about to be popped after peeking. You can return false to block the next part.
+  ///The callback for when the view is about to be popped after peeking. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willFinishPeekAndPop;
 
-  ///The callback for when the view is about to be closed after popping. You can return false to block the next part.
+  ///The callback for when the view is about to be closed after popping. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willClosePeekAndPop;
 
   ///The callback for when the Peek & Pop process successfully completes. This callback is invoked after the entire process.

@@ -6,7 +6,9 @@
 
 * Code excerpt added to the README.
 
-* Updated the README.
+* Updated README.
+
+* [0.1.9+1] Updated README.
 
 ## [0.1.8] - 18.08.2019
 
@@ -14,25 +16,25 @@
 
 * Minor changes.
 
-* [0.1.8+1] An important notice added to the README.
+* [0.1.8+1] Updated README.
 
 ## [0.1.7] - 14.08.2019
 
 * The "Indicator" feature added. See this [video](https://youtu.be/wOWCV7HJzwc) for examples.
 
-* Further improved performance.
+* Improved performance.
 
-* Further fine tuning for a smoother Peek & Pop process.
+* Fine tuning.
 
 ## [0.1.6] - 12.08.2019
 
-* Missing documentation added.
-
-* How-to-Use added to the README.
-
-* Fine tuning for a smoother Peek & Pop process.
-
 * Improved Long Press version (still under development).
+
+* Fine tuning.
+
+* Improved documentation.
+
+* Updated README.
 
 ## [0.1.5] - 11.08.2019
 
@@ -42,13 +44,13 @@
 
 ## [0.1.4] - 11.08.2019
 
-* Fixed a minor bug.
+* A minor bug is fixed.
 
 ## [0.1.3] - 07.08.2019
 
-* Fixed a minor bug in the example project.
+* A minor bug in the example project is fixed.
 
-* Improved installation instructions: 
+* Updated README: 
   
   **Note**: Don't forget to add <key>io.flutter.embedded_views_preview</key><string>YES</string> to your Info.plist. See
   [webview_flutter](https://pub.flutter-io.cn/packages/webview_flutter) for more info.
@@ -59,7 +61,7 @@
 
 * More callbacks added for better control.
 
-* Simple enumeration for stages added.
+* Simple enumeration for the stage of the Peek & Pop process added.
 
 * Improved animations.
 
@@ -71,18 +73,10 @@
 
 ## [0.1.0] - 06.08.2019
 
-* Improved PeekAndPopMoveController.
-
 * Improved Long Press version (still under development).
 
 * Improved documentation.
 
 ## [0.0.1] - 05.08.2019
 
-* Initial release. Known issues are:
-
-I) "For devices that don't support Force Press, the package comes with an adaptation to Long Press *however* the Long Press 
-version of this package is still under development and is not fully tested yet so consider it as a developers preview."
-
-II) "The "PeekAndPopMoveController" functionality is a very recent addition and therefore it can have unexpected behaviour. 
-    An improved version will be submitted shortly."
+* Initial release.
