@@ -2,6 +2,7 @@
 /android
 /build
 /ios
+.todo.dart
 
 # Miscellaneous
 *.class

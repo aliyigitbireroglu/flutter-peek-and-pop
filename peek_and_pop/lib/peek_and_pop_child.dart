@@ -93,12 +93,17 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   void initState() {
     super.initState();
 
-    animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 333), lowerBound: 0, upperBound: 1)
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 333),
+      lowerBound: 0,
+      upperBound: 1,
+    )
       ..addListener(() {})
       ..addStatusListener(animationStatusListener);
     animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: animationController, curve: Curves.fastOutSlowIn));
 
-    if (_peekAndPopController.isDirect || _peekAndPopController.isHero) animationController.value = 1;
+    if (_peekAndPopController.isDirect) animationController.value = 1;
 
     _peekAndPopController.pushComplete(this);
   }
@@ -145,13 +150,10 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     switch (headerOffset) {
       case HeaderOffset.NegativeHalf:
         return -headerSize.height / 2;
-        break;
       case HeaderOffset.PositiveHalf:
         return headerSize.height / 2;
-        break;
       case HeaderOffset.Zero:
         return 0;
-        break;
     }
     return 0;
   }
@@ -171,9 +173,8 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 
       RenderRepaintBoundary renderBackground = background.currentContext.findRenderObject();
       ui.Image image = await renderBackground.toImage(
-        pixelRatio:
-            optimisationVersion == 0 ? WidgetsBinding.instance.window.devicePixelRatio : WidgetsBinding.instance.window.devicePixelRatio * 0.1,
-      );
+          pixelRatio:
+              optimisationVersion == 0 ? WidgetsBinding.instance.window.devicePixelRatio : WidgetsBinding.instance.window.devicePixelRatio * 0.1);
       ByteData imageByteData = await image.toByteData(format: ImageByteFormat.png);
       blurSnapshot = imageByteData.buffer.asUint8List();
 
@@ -220,14 +221,16 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     if (width == -1) width = MediaQuery.of(context).size.width;
     if (height == -1) height = MediaQuery.of(context).size.height;
 
-    return Stack(children: [
-      ValueListenableBuilder(
-        builder: (BuildContext context, int blurTracker, Widget cachedChild) {
-          SchedulerBinding.instance.addPostFrameCallback(increaseFramecount);
-          return Stack(children: [
-            Visibility(
-                visible: !isPeeking,
-                child: AnimatedBuilder(
+    return Stack(
+      children: [
+        ValueListenableBuilder(
+          builder: (BuildContext context, int blurTracker, Widget cachedChild) {
+            SchedulerBinding.instance.addPostFrameCallback(increaseFramecount);
+            return Stack(
+              children: [
+                Visibility(
+                  visible: !isPeeking,
+                  child: AnimatedBuilder(
                     animation: _peekAndPopController.animationController,
                     builder: (BuildContext context, Widget cachedChild) {
                       double sigma = _peekAndPopController.isComplete
@@ -238,84 +241,122 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                                   _peekAndPopController.sigma);
                       double alpha = sigma / _peekAndPopController.sigma;
                       return BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                          child: Container(
-                              constraints: const BoxConstraints.expand(),
-                              color: _peekAndPopController.backdropColor.withAlpha((alpha * _peekAndPopController.alpha).ceil())));
-                    })),
-            optimisationVersion == 0
-                ? Image.memory(blurSnapshot, gaplessPlayback: true)
-                : height > width
-                    ? Row(
-                        children: [SizedBox(width: width * upscaleCoefficient, height: height, child: Image.memory(blurSnapshot, fit: BoxFit.fill))],
+                        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                        child: Container(
+                          constraints: const BoxConstraints.expand(),
+                          color: _peekAndPopController.backdropColor.withAlpha((alpha * _peekAndPopController.alpha).ceil()),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                optimisationVersion == 0
+                    ? Image.memory(
+                        blurSnapshot,
+                        gaplessPlayback: true,
                       )
-                    : Column(
-                        children: [SizedBox(width: width, height: height * upscaleCoefficient, child: Image.memory(blurSnapshot, fit: BoxFit.fill))],
-                      )
-          ]);
-        },
-        valueListenable: blurTrackerNotifier,
-      ),
-      AnimatedBuilder(
+                    : height > width
+                        ? Row(
+                            children: [
+                              SizedBox(
+                                width: width * upscaleCoefficient,
+                                height: height,
+                                child: Image.memory(
+                                  blurSnapshot,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              SizedBox(
+                                width: width,
+                                height: height * upscaleCoefficient,
+                                child: Image.memory(
+                                  blurSnapshot,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ],
+                          ),
+              ],
+            );
+          },
+          valueListenable: blurTrackerNotifier,
+        ),
+        AnimatedBuilder(
           animation: animation,
           child: ValueListenableBuilder(
-              child: _peekAndPopController.useCache ? wrapper() : null,
-              builder: (BuildContext context, int animationTracker, Widget cachedChild) {
-                double secondaryScale = _peekAndPopController.peekScale +
-                    _peekAndPopController.peekCoefficient * _peekAndPopController.animationController.value +
-                    _peekAndPopController.secondaryAnimation.value;
-                return Transform.scale(scale: secondaryScale, child: _peekAndPopController.useCache ? cachedChild : wrapper());
-              },
-              valueListenable: _peekAndPopController.animationTrackerNotifier),
+            child: _peekAndPopController.useCache ? wrapper() : null,
+            builder: (BuildContext context, int animationTracker, Widget cachedChild) {
+              double secondaryScale = _peekAndPopController.peekScale +
+                  _peekAndPopController.peekCoefficient * _peekAndPopController.animationController.value +
+                  _peekAndPopController.secondaryAnimation.value;
+              return Transform.scale(
+                scale: secondaryScale,
+                child: _peekAndPopController.useCache ? cachedChild : wrapper(),
+              );
+            },
+            valueListenable: _peekAndPopController.animationTrackerNotifier,
+          ),
           builder: (BuildContext context, Widget cachedChild) {
             double primaryScale = _peekAndPopController.isHero ? 1.0 : animation.value;
-            return Transform.scale(scale: primaryScale, child: cachedChild);
-          }),
-      ValueListenableBuilder(
+            return Transform.scale(
+              scale: primaryScale,
+              child: cachedChild,
+            );
+          },
+        ),
+        ValueListenableBuilder(
           builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
             if (pressRerouted == 1) _peekAndPopController.unlockPress();
             return IgnorePointer(
-                ignoring: pressRerouted != 1,
-                child: MyGestureDetector.GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    startPressure: 0,
-                    peakPressure: _peekAndPopController.peakPressure,
-                    onForcePressStart: (ForcePressDetails forcePressDetails) {
-                      _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                      _peekAndPopController.beginDrag(forcePressDetails);
-                    },
-                    onForcePressUpdate: (ForcePressDetails forcePressDetails) {
-                      _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                      _peekAndPopController.updateDrag(forcePressDetails);
-                    },
-                    onForcePressEnd: (ForcePressDetails forcePressDetails) {
-                      _peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                      _peekAndPopController.endDrag(forcePressDetails);
-                    },
-                    onForcePressPeak: (ForcePressDetails forcePressDetails) {
-                      _peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
-                    },
-                    onVerticalDragStart: (DragStartDetails dragStartDetails) {
-                      _peekAndPopController.beginDrag(dragStartDetails);
-                    },
-                    onVerticalDragUpdate: (DragUpdateDetails dragUpdateDetails) {
-                      _peekAndPopController.updateDrag(dragUpdateDetails);
-                    },
-                    onVerticalDragEnd: (DragEndDetails dragEndDetails) {
-                      _peekAndPopController.endDrag(dragEndDetails);
-                    },
-                    onHorizontalDragStart: (DragStartDetails dragStartDetails) {
-                      _peekAndPopController.beginDrag(dragStartDetails);
-                    },
-                    onHorizontalDragUpdate: (DragUpdateDetails dragUpdateDetails) {
-                      _peekAndPopController.updateDrag(dragUpdateDetails);
-                    },
-                    onHorizontalDragEnd: (DragEndDetails dragEndDetails) {
-                      _peekAndPopController.endDrag(dragEndDetails);
-                    }));
+              ignoring: pressRerouted != 1,
+              child: MyGestureDetector.GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                startPressure: 0,
+                peakPressure: _peekAndPopController.peakPressure,
+                onForcePressStart: (ForcePressDetails forcePressDetails) {
+                  _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                  _peekAndPopController.beginDrag(forcePressDetails);
+                },
+                onForcePressUpdate: (ForcePressDetails forcePressDetails) {
+                  _peekAndPopController.updatePeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                  _peekAndPopController.updateDrag(forcePressDetails);
+                },
+                onForcePressEnd: (ForcePressDetails forcePressDetails) {
+                  _peekAndPopController.cancelPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                  _peekAndPopController.endDrag(forcePressDetails);
+                },
+                onForcePressPeak: (ForcePressDetails forcePressDetails) {
+                  _peekAndPopController.finishPeekAndPop(forcePressDetails, isFromOverlayEntry: true);
+                },
+                onVerticalDragStart: (DragStartDetails dragStartDetails) {
+                  _peekAndPopController.beginDrag(dragStartDetails);
+                },
+                onVerticalDragUpdate: (DragUpdateDetails dragUpdateDetails) {
+                  _peekAndPopController.updateDrag(dragUpdateDetails);
+                },
+                onVerticalDragEnd: (DragEndDetails dragEndDetails) {
+                  _peekAndPopController.endDrag(dragEndDetails);
+                },
+                onHorizontalDragStart: (DragStartDetails dragStartDetails) {
+                  _peekAndPopController.beginDrag(dragStartDetails);
+                },
+                onHorizontalDragUpdate: (DragUpdateDetails dragUpdateDetails) {
+                  _peekAndPopController.updateDrag(dragUpdateDetails);
+                },
+                onHorizontalDragEnd: (DragEndDetails dragEndDetails) {
+                  _peekAndPopController.endDrag(dragEndDetails);
+                },
+              ),
+            );
           },
-          valueListenable: _peekAndPopController.pressReroutedNotifier),
-      if (_peekAndPopController.overlayBuilder != null) _peekAndPopController.overlayBuilder
-    ]);
+          valueListenable: _peekAndPopController.pressReroutedNotifier,
+        ),
+        if (_peekAndPopController.overlayBuilder != null) _peekAndPopController.overlayBuilder,
+      ],
+    );
   }
 }

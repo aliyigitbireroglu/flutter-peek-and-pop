@@ -23,36 +23,42 @@ class PeekAndPopDetector extends StatelessWidget {
 
   final Widget child;
 
-  const PeekAndPopDetector(this._peekAndPopController, this.child);
+  const PeekAndPopDetector(
+    this._peekAndPopController,
+    this.child,
+  );
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        child: child,
-        builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
-          return IgnorePointer(
-              ignoring: pressRerouted != 0,
-              child: MyGestureDetector.GestureDetector(
-                  startPressure: _peekAndPopController.startPressure,
-                  peakPressure: _peekAndPopController.peakPressure,
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    _peekAndPopController.peekAndPopComplete();
-                  },
-                  onForcePressStart: (ForcePressDetails forcePressDetails) {
-                    _peekAndPopController.pushPeekAndPop(forcePressDetails);
-                  },
-                  onForcePressUpdate: (ForcePressDetails forcePressDetails) {
-                    _peekAndPopController.updatePeekAndPop(forcePressDetails);
-                  },
-                  onForcePressEnd: (ForcePressDetails forcePressDetails) {
-                    _peekAndPopController.cancelPeekAndPop(forcePressDetails);
-                  },
-                  onForcePressPeak: (ForcePressDetails forcePressDetails) {
-                    _peekAndPopController.finishPeekAndPop(forcePressDetails);
-                  },
-                  child: cachedChild));
-        },
-        valueListenable: _peekAndPopController.pressReroutedNotifier);
+      child: child,
+      builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
+        return IgnorePointer(
+          ignoring: pressRerouted != 0,
+          child: MyGestureDetector.GestureDetector(
+            startPressure: _peekAndPopController.startPressure,
+            peakPressure: _peekAndPopController.peakPressure,
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              _peekAndPopController.peekAndPopComplete();
+            },
+            onForcePressStart: (ForcePressDetails forcePressDetails) {
+              _peekAndPopController.pushPeekAndPop(forcePressDetails);
+            },
+            onForcePressUpdate: (ForcePressDetails forcePressDetails) {
+              _peekAndPopController.updatePeekAndPop(forcePressDetails);
+            },
+            onForcePressEnd: (ForcePressDetails forcePressDetails) {
+              _peekAndPopController.cancelPeekAndPop(forcePressDetails);
+            },
+            onForcePressPeak: (ForcePressDetails forcePressDetails) {
+              _peekAndPopController.finishPeekAndPop(forcePressDetails);
+            },
+            child: cachedChild,
+          ),
+        );
+      },
+      valueListenable: _peekAndPopController.pressReroutedNotifier,
+    );
   }
 }

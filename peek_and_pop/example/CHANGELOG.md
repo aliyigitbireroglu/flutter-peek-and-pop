@@ -1,3 +1,11 @@
+## [0.2.0] - 23.08.2019
+
+* Improved performance.
+
+* Minor changes.
+
+* Improved code style with trailing commas.
+
 ## [0.1.9] - 20.08.2019
 
 * Modifications to Flutter's normal "binding.dart" are no longer required!

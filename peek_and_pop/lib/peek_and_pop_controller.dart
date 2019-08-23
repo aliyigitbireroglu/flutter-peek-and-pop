@@ -122,70 +122,74 @@ class PeekAndPopController extends StatefulWidget {
   ///   (A default [SlideTransition] is provided.)
   final Function popTransition;
 
-  const PeekAndPopController(this.uiChild, this.peekAndPopBuilder, this.useCache,
-      {Key key,
-      this.sigma: 10,
-      this.backdropColor: Colors.black,
-      this.alpha: 126,
-      this.overlayBuiler,
-      this.useIndicator: true,
-      this.isHero: false,
-      this.willPeekAndPopComplete,
-      this.willPushPeekAndPop,
-      this.willUpdatePeekAndPop,
-      this.willCancelPeekAndPop,
-      this.willFinishPeekAndPop,
-      this.willClosePeekAndPop,
-      this.onPeekAndPopComplete,
-      this.onPushPeekAndPop,
-      this.onUpdatePeekAndPop,
-      this.onCancelPeekAndPop,
-      this.onFinishPeekAndPop,
-      this.onClosePeekAndPop,
-      this.onPressStart,
-      this.onPressUpdate,
-      this.onPressEnd,
-      this.treshold: 0.5,
-      this.startPressure: 0.125,
-      this.peakPressure: 1.0,
-      this.peekScale: 0.5,
-      this.peekCoefficient: 0.05,
-      this.popTransition})
-      : super(key: key);
+  const PeekAndPopController(
+    this.uiChild,
+    this.peekAndPopBuilder,
+    this.useCache, {
+    Key key,
+    this.sigma: 10,
+    this.backdropColor: Colors.black,
+    this.alpha: 126,
+    this.overlayBuiler,
+    this.useIndicator: true,
+    this.isHero: false,
+    this.willPeekAndPopComplete,
+    this.willPushPeekAndPop,
+    this.willUpdatePeekAndPop,
+    this.willCancelPeekAndPop,
+    this.willFinishPeekAndPop,
+    this.willClosePeekAndPop,
+    this.onPeekAndPopComplete,
+    this.onPushPeekAndPop,
+    this.onUpdatePeekAndPop,
+    this.onCancelPeekAndPop,
+    this.onFinishPeekAndPop,
+    this.onClosePeekAndPop,
+    this.onPressStart,
+    this.onPressUpdate,
+    this.onPressEnd,
+    this.treshold: 0.5,
+    this.startPressure: 0.125,
+    this.peakPressure: 1.0,
+    this.peekScale: 0.5,
+    this.peekCoefficient: 0.05,
+    this.popTransition,
+  }) : super(key: key);
 
   @override
   PeekAndPopControllerState createState() {
     return PeekAndPopControllerState(
-        uiChild,
-        peekAndPopBuilder,
-        useCache,
-        sigma,
-        backdropColor,
-        alpha,
-        overlayBuiler,
-        useIndicator,
-        isHero,
-        willPeekAndPopComplete,
-        willPushPeekAndPop,
-        willUpdatePeekAndPop,
-        willCancelPeekAndPop,
-        willFinishPeekAndPop,
-        willClosePeekAndPop,
-        onPeekAndPopComplete,
-        onPushPeekAndPop,
-        onUpdatePeekAndPop,
-        onCancelPeekAndPop,
-        onFinishPeekAndPop,
-        onClosePeekAndPop,
-        onPressStart,
-        onPressUpdate,
-        onPressEnd,
-        treshold,
-        startPressure,
-        peakPressure,
-        peekScale,
-        peekCoefficient,
-        popTransition);
+      uiChild,
+      peekAndPopBuilder,
+      useCache,
+      sigma,
+      backdropColor,
+      alpha,
+      overlayBuiler,
+      useIndicator,
+      isHero,
+      willPeekAndPopComplete,
+      willPushPeekAndPop,
+      willUpdatePeekAndPop,
+      willCancelPeekAndPop,
+      willFinishPeekAndPop,
+      willClosePeekAndPop,
+      onPeekAndPopComplete,
+      onPushPeekAndPop,
+      onUpdatePeekAndPop,
+      onCancelPeekAndPop,
+      onFinishPeekAndPop,
+      onClosePeekAndPop,
+      onPressStart,
+      onPressUpdate,
+      onPressEnd,
+      treshold,
+      startPressure,
+      peakPressure,
+      peekScale,
+      peekCoefficient,
+      popTransition,
+    );
   }
 }
 
@@ -275,36 +279,37 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final int _debugLevel = 0;
 
   PeekAndPopControllerState(
-      this.uiChild,
-      this.peekAndPopBuilder,
-      this.useCache,
-      this.sigma,
-      this.backdropColor,
-      this.alpha,
-      this.overlayBuilder,
-      this.useIndicator,
-      this.isHero,
-      this.willPeekAndPopComplete,
-      this.willPushPeekAndPop,
-      this.willUpdatePeekAndPop,
-      this.willCancelPeekAndPop,
-      this.willFinishPeekAndPop,
-      this.willClosePeekAndPop,
-      this.onPeekAndPopComplete,
-      this.onPushPeekAndPop,
-      this.onUpdatePeekAndPop,
-      this.onCancelPeekAndPop,
-      this.onFinishPeekAndPop,
-      this.onClosePeekAndPop,
-      this.onPressStart,
-      this.onPressUpdate,
-      this.onPressEnd,
-      this.treshold,
-      this.startPressure,
-      this.peakPressure,
-      this.peekScale,
-      this.peekCoefficient,
-      this.popTransition);
+    this.uiChild,
+    this.peekAndPopBuilder,
+    this.useCache,
+    this.sigma,
+    this.backdropColor,
+    this.alpha,
+    this.overlayBuilder,
+    this.useIndicator,
+    this.isHero,
+    this.willPeekAndPopComplete,
+    this.willPushPeekAndPop,
+    this.willUpdatePeekAndPop,
+    this.willCancelPeekAndPop,
+    this.willFinishPeekAndPop,
+    this.willClosePeekAndPop,
+    this.onPeekAndPopComplete,
+    this.onPushPeekAndPop,
+    this.onUpdatePeekAndPop,
+    this.onCancelPeekAndPop,
+    this.onFinishPeekAndPop,
+    this.onClosePeekAndPop,
+    this.onPressStart,
+    this.onPressUpdate,
+    this.onPressEnd,
+    this.treshold,
+    this.startPressure,
+    this.peakPressure,
+    this.peekScale,
+    this.peekCoefficient,
+    this.popTransition,
+  );
 
   void updateAnimationTrackerNotifier() {
     animationTrackerNotifier.value += 1;
@@ -384,156 +389,166 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   Future reroutePress() async {
     if (_debugLevel > 4) print("Waiting for isPushed || !isLocked.");
-    while (!isPushed) await Future.delayed(Duration(milliseconds: 1));
+    while (!isPushed) await Future.delayed(const Duration(milliseconds: 1));
     isLocked = true;
     pressReroutedNotifier.value = 1;
-    while (isLocked) await Future.delayed(Duration(milliseconds: 1));
+    while (isLocked) await Future.delayed(const Duration(milliseconds: 1));
 
     if (_debugLevel > 4) print("Resuming GestureBinding.");
     window.onPointerDataPacket = pointerDataPacketCallback;
 
     if (_debugLevel > 4) print("Resetting GestureBinding.");
     PointerData lastPointerData = pointerDataPacket.data.last;
-    PointerDataPacket pointerDataPacketUp = PointerDataPacket(data: [
-      PointerData(
-        timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 1),
-        change: PointerChange.up,
-        kind: lastPointerData.kind,
-        signalKind: lastPointerData.signalKind,
-        device: lastPointerData.device,
-        physicalX: lastPointerData.physicalX,
-        physicalY: lastPointerData.physicalY,
-        buttons: lastPointerData.buttons,
-        obscured: lastPointerData.obscured,
-        pressure: lastPointerData.pressure,
-        pressureMin: lastPointerData.pressureMin,
-        pressureMax: lastPointerData.pressureMax,
-        distance: lastPointerData.distance,
-        distanceMax: lastPointerData.distanceMax,
-        size: lastPointerData.size,
-        radiusMajor: lastPointerData.radiusMajor,
-        radiusMinor: lastPointerData.radiusMinor,
-        radiusMin: lastPointerData.radiusMin,
-        radiusMax: lastPointerData.radiusMax,
-        orientation: lastPointerData.orientation,
-        tilt: lastPointerData.tilt,
-        platformData: lastPointerData.platformData,
-        scrollDeltaX: lastPointerData.scrollDeltaX,
-        scrollDeltaY: lastPointerData.scrollDeltaY,
-      )
-    ]);
-    PointerDataPacket pointerDataPacketRemove = PointerDataPacket(data: [
-      PointerData(
-        timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 2),
-        change: PointerChange.remove,
-        kind: lastPointerData.kind,
-        signalKind: lastPointerData.signalKind,
-        device: lastPointerData.device,
-        physicalX: lastPointerData.physicalX,
-        physicalY: lastPointerData.physicalY,
-        buttons: lastPointerData.buttons,
-        obscured: lastPointerData.obscured,
-        pressure: lastPointerData.pressure,
-        pressureMin: lastPointerData.pressureMin,
-        pressureMax: lastPointerData.pressureMax,
-        distance: lastPointerData.distance,
-        distanceMax: lastPointerData.distanceMax,
-        size: lastPointerData.size,
-        radiusMajor: lastPointerData.radiusMajor,
-        radiusMinor: lastPointerData.radiusMinor,
-        radiusMin: lastPointerData.radiusMin,
-        radiusMax: lastPointerData.radiusMax,
-        orientation: lastPointerData.orientation,
-        tilt: lastPointerData.tilt,
-        platformData: lastPointerData.platformData,
-        scrollDeltaX: lastPointerData.scrollDeltaX,
-        scrollDeltaY: lastPointerData.scrollDeltaY,
-      )
-    ]);
-    PointerDataPacket pointerDataPacketAdd = PointerDataPacket(data: [
-      PointerData(
-        timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 3),
-        change: PointerChange.add,
-        kind: lastPointerData.kind,
-        signalKind: lastPointerData.signalKind,
-        device: lastPointerData.device,
-        physicalX: lastPointerData.physicalX,
-        physicalY: lastPointerData.physicalY,
-        buttons: lastPointerData.buttons,
-        obscured: lastPointerData.obscured,
-        pressure: lastPointerData.pressure,
-        pressureMin: lastPointerData.pressureMin,
-        pressureMax: lastPointerData.pressureMax,
-        distance: lastPointerData.distance,
-        distanceMax: lastPointerData.distanceMax,
-        size: lastPointerData.size,
-        radiusMajor: lastPointerData.radiusMajor,
-        radiusMinor: lastPointerData.radiusMinor,
-        radiusMin: lastPointerData.radiusMin,
-        radiusMax: lastPointerData.radiusMax,
-        orientation: lastPointerData.orientation,
-        tilt: lastPointerData.tilt,
-        platformData: lastPointerData.platformData,
-        scrollDeltaX: lastPointerData.scrollDeltaX,
-        scrollDeltaY: lastPointerData.scrollDeltaY,
-      )
-    ]);
-    PointerDataPacket pointerDataPacketDown = PointerDataPacket(data: [
-      PointerData(
-        timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 4),
-        change: PointerChange.down,
-        kind: lastPointerData.kind,
-        signalKind: lastPointerData.signalKind,
-        device: lastPointerData.device,
-        physicalX: lastPointerData.physicalX,
-        physicalY: lastPointerData.physicalY,
-        buttons: lastPointerData.buttons,
-        obscured: lastPointerData.obscured,
-        pressure: lastPointerData.pressure,
-        pressureMin: lastPointerData.pressureMin,
-        pressureMax: lastPointerData.pressureMax,
-        distance: lastPointerData.distance,
-        distanceMax: lastPointerData.distanceMax,
-        size: lastPointerData.size,
-        radiusMajor: lastPointerData.radiusMajor,
-        radiusMinor: lastPointerData.radiusMinor,
-        radiusMin: lastPointerData.radiusMin,
-        radiusMax: lastPointerData.radiusMax,
-        orientation: lastPointerData.orientation,
-        tilt: lastPointerData.tilt,
-        platformData: lastPointerData.platformData,
-        scrollDeltaX: lastPointerData.scrollDeltaX,
-        scrollDeltaY: lastPointerData.scrollDeltaY,
-      )
-    ]);
-    PointerDataPacket pointerDataPacketMove = PointerDataPacket(data: [
-      PointerData(
-        timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 5),
-        change: PointerChange.move,
-        kind: lastPointerData.kind,
-        signalKind: lastPointerData.signalKind,
-        device: lastPointerData.device,
-        physicalX: lastPointerData.physicalX,
-        physicalY: lastPointerData.physicalY,
-        buttons: lastPointerData.buttons,
-        obscured: lastPointerData.obscured,
-        pressure: lastPointerData.pressure,
-        pressureMin: lastPointerData.pressureMin,
-        pressureMax: lastPointerData.pressureMax,
-        distance: lastPointerData.distance,
-        distanceMax: lastPointerData.distanceMax,
-        size: lastPointerData.size,
-        radiusMajor: lastPointerData.radiusMajor,
-        radiusMinor: lastPointerData.radiusMinor,
-        radiusMin: lastPointerData.radiusMin,
-        radiusMax: lastPointerData.radiusMax,
-        orientation: lastPointerData.orientation,
-        tilt: lastPointerData.tilt,
-        platformData: lastPointerData.platformData,
-        scrollDeltaX: lastPointerData.scrollDeltaX,
-        scrollDeltaY: lastPointerData.scrollDeltaY,
-      )
-    ]);
+    PointerDataPacket pointerDataPacketUp = PointerDataPacket(
+      data: [
+        PointerData(
+          timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 1),
+          change: PointerChange.up,
+          kind: lastPointerData.kind,
+          signalKind: lastPointerData.signalKind,
+          device: lastPointerData.device,
+          physicalX: lastPointerData.physicalX,
+          physicalY: lastPointerData.physicalY,
+          buttons: lastPointerData.buttons,
+          obscured: lastPointerData.obscured,
+          pressure: lastPointerData.pressure,
+          pressureMin: lastPointerData.pressureMin,
+          pressureMax: lastPointerData.pressureMax,
+          distance: lastPointerData.distance,
+          distanceMax: lastPointerData.distanceMax,
+          size: lastPointerData.size,
+          radiusMajor: lastPointerData.radiusMajor,
+          radiusMinor: lastPointerData.radiusMinor,
+          radiusMin: lastPointerData.radiusMin,
+          radiusMax: lastPointerData.radiusMax,
+          orientation: lastPointerData.orientation,
+          tilt: lastPointerData.tilt,
+          platformData: lastPointerData.platformData,
+          scrollDeltaX: lastPointerData.scrollDeltaX,
+          scrollDeltaY: lastPointerData.scrollDeltaY,
+        ),
+      ],
+    );
+    PointerDataPacket pointerDataPacketRemove = PointerDataPacket(
+      data: [
+        PointerData(
+          timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 2),
+          change: PointerChange.remove,
+          kind: lastPointerData.kind,
+          signalKind: lastPointerData.signalKind,
+          device: lastPointerData.device,
+          physicalX: lastPointerData.physicalX,
+          physicalY: lastPointerData.physicalY,
+          buttons: lastPointerData.buttons,
+          obscured: lastPointerData.obscured,
+          pressure: lastPointerData.pressure,
+          pressureMin: lastPointerData.pressureMin,
+          pressureMax: lastPointerData.pressureMax,
+          distance: lastPointerData.distance,
+          distanceMax: lastPointerData.distanceMax,
+          size: lastPointerData.size,
+          radiusMajor: lastPointerData.radiusMajor,
+          radiusMinor: lastPointerData.radiusMinor,
+          radiusMin: lastPointerData.radiusMin,
+          radiusMax: lastPointerData.radiusMax,
+          orientation: lastPointerData.orientation,
+          tilt: lastPointerData.tilt,
+          platformData: lastPointerData.platformData,
+          scrollDeltaX: lastPointerData.scrollDeltaX,
+          scrollDeltaY: lastPointerData.scrollDeltaY,
+        ),
+      ],
+    );
+    PointerDataPacket pointerDataPacketAdd = PointerDataPacket(
+      data: [
+        PointerData(
+          timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 3),
+          change: PointerChange.add,
+          kind: lastPointerData.kind,
+          signalKind: lastPointerData.signalKind,
+          device: lastPointerData.device,
+          physicalX: lastPointerData.physicalX,
+          physicalY: lastPointerData.physicalY,
+          buttons: lastPointerData.buttons,
+          obscured: lastPointerData.obscured,
+          pressure: lastPointerData.pressure,
+          pressureMin: lastPointerData.pressureMin,
+          pressureMax: lastPointerData.pressureMax,
+          distance: lastPointerData.distance,
+          distanceMax: lastPointerData.distanceMax,
+          size: lastPointerData.size,
+          radiusMajor: lastPointerData.radiusMajor,
+          radiusMinor: lastPointerData.radiusMinor,
+          radiusMin: lastPointerData.radiusMin,
+          radiusMax: lastPointerData.radiusMax,
+          orientation: lastPointerData.orientation,
+          tilt: lastPointerData.tilt,
+          platformData: lastPointerData.platformData,
+          scrollDeltaX: lastPointerData.scrollDeltaX,
+          scrollDeltaY: lastPointerData.scrollDeltaY,
+        ),
+      ],
+    );
+    PointerDataPacket pointerDataPacketDown = PointerDataPacket(
+      data: [
+        PointerData(
+          timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 4),
+          change: PointerChange.down,
+          kind: lastPointerData.kind,
+          signalKind: lastPointerData.signalKind,
+          device: lastPointerData.device,
+          physicalX: lastPointerData.physicalX,
+          physicalY: lastPointerData.physicalY,
+          buttons: lastPointerData.buttons,
+          obscured: lastPointerData.obscured,
+          pressure: lastPointerData.pressure,
+          pressureMin: lastPointerData.pressureMin,
+          pressureMax: lastPointerData.pressureMax,
+          distance: lastPointerData.distance,
+          distanceMax: lastPointerData.distanceMax,
+          size: lastPointerData.size,
+          radiusMajor: lastPointerData.radiusMajor,
+          radiusMinor: lastPointerData.radiusMinor,
+          radiusMin: lastPointerData.radiusMin,
+          radiusMax: lastPointerData.radiusMax,
+          orientation: lastPointerData.orientation,
+          tilt: lastPointerData.tilt,
+          platformData: lastPointerData.platformData,
+          scrollDeltaX: lastPointerData.scrollDeltaX,
+          scrollDeltaY: lastPointerData.scrollDeltaY,
+        ),
+      ],
+    );
+    PointerDataPacket pointerDataPacketMove = PointerDataPacket(
+      data: [
+        PointerData(
+          timeStamp: Duration(milliseconds: lastPointerData.timeStamp.inMilliseconds + 5),
+          change: PointerChange.move,
+          kind: lastPointerData.kind,
+          signalKind: lastPointerData.signalKind,
+          device: lastPointerData.device,
+          physicalX: lastPointerData.physicalX,
+          physicalY: lastPointerData.physicalY,
+          buttons: lastPointerData.buttons,
+          obscured: lastPointerData.obscured,
+          pressure: lastPointerData.pressure,
+          pressureMin: lastPointerData.pressureMin,
+          pressureMax: lastPointerData.pressureMax,
+          distance: lastPointerData.distance,
+          distanceMax: lastPointerData.distanceMax,
+          size: lastPointerData.size,
+          radiusMajor: lastPointerData.radiusMajor,
+          radiusMinor: lastPointerData.radiusMinor,
+          radiusMin: lastPointerData.radiusMin,
+          radiusMax: lastPointerData.radiusMax,
+          orientation: lastPointerData.orientation,
+          tilt: lastPointerData.tilt,
+          platformData: lastPointerData.platformData,
+          scrollDeltaX: lastPointerData.scrollDeltaX,
+          scrollDeltaY: lastPointerData.scrollDeltaY,
+        ),
+      ],
+    );
     window.onPointerDataPacket(pointerDataPacketUp);
     window.onPointerDataPacket(pointerDataPacketRemove);
     window.onPointerDataPacket(pointerDataPacketAdd);
@@ -549,10 +564,20 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     lastActionTime = DateTime.now();
 
-    animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 333), lowerBound: 0, upperBound: 1)
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 333),
+      lowerBound: 0,
+      upperBound: 1,
+    )
       ..addListener(updateAnimationTrackerNotifier)
       ..addStatusListener(primaryAnimationStatusListener);
-    secondaryAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 222), lowerBound: 0, upperBound: 1)
+    secondaryAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 222),
+      lowerBound: 0,
+      upperBound: 1,
+    )
       ..addListener(updateAnimationTrackerNotifier)
       ..addStatusListener(secondaryAnimationStatusListener);
     secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
@@ -590,7 +615,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();
-      Future.delayed(Duration(milliseconds: 666), reset);
+      Future.delayed(const Duration(milliseconds: 666), reset);
 
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
     });
@@ -639,18 +664,35 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   OverlayEntry buildIndicator(context) {
     RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
-    return OverlayEntry(builder: (BuildContext context) {
-      return Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Transform.translate(
-              offset: renderBox.localToGlobal(Offset.zero),
-              child: SizedBox(
-                  width: renderBox.size.width,
-                  height: renderBox.size.height,
-                  child: IgnorePointer(child: Scaffold(backgroundColor: Colors.transparent, body: uiChild))))
-        ])
-      ]);
-    });
+    return OverlayEntry(
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Transform.translate(
+                  offset: renderBox.localToGlobal(Offset.zero),
+                  child: SizedBox(
+                    width: renderBox.size.width,
+                    height: renderBox.size.height,
+                    child: IgnorePointer(
+                      child: Scaffold(
+                        backgroundColor: Colors.transparent,
+                        body: uiChild,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void updatePeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
@@ -811,6 +853,12 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   @override
   Widget build(BuildContext context) {
-    return PeekAndPopDetector(this, Container(key: uiChildContainer, child: uiChild));
+    return PeekAndPopDetector(
+      this,
+      Container(
+        key: uiChildContainer,
+        child: uiChild,
+      ),
+    );
   }
 }

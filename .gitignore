@@ -1,3 +1,9 @@
+/gitignore
+/android
+/build
+/ios
+.todo.dart
+
 # Miscellaneous
 *.class
 *.log
