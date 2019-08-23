@@ -21,10 +21,17 @@ typedef PeekAndPopProcessNotifier = bool Function(PeekAndPopControllerState _pee
 typedef PeekAndPopProcessCallback = void Function(PeekAndPopControllerState _peekAndPopController);
 typedef PeekAndPopGestureCallback = void Function(dynamic pressDetails);
 
-enum Stage { Null, Done }
+enum Stage {
+  Null,
+  Done,
+}
 
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
-enum HeaderOffset { Zero, NegativeHalf, PositiveHalf }
+enum HeaderOffset {
+  Zero,
+  NegativeHalf,
+  PositiveHalf,
+}
 
 ///The new optimised blur effect algorithm during the Peek & Pop process requires your root CupertinoApp/MaterialApp to be wrapped in a
 ///[RepaintBoundary] widget which uses this key. See README, [PeekAndPopChildState.blurSnapshot] or [PeekAndPopChildState.blurTrackerNotifier] for more
