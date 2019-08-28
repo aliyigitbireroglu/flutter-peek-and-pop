@@ -31,7 +31,7 @@ class PeekAndPopDetector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      child: child,
+      child: _peekAndPopController.uiChildUseCache ? child : null,
       builder: (BuildContext context, int pressRerouted, Widget cachedChild) {
         return IgnorePointer(
           ignoring: pressRerouted != 0,
@@ -54,7 +54,7 @@ class PeekAndPopDetector extends StatelessWidget {
             onForcePressPeak: (ForcePressDetails forcePressDetails) {
               _peekAndPopController.finishPeekAndPop(forcePressDetails);
             },
-            child: cachedChild,
+            child: _peekAndPopController.uiChildUseCache ? cachedChild : child,
           ),
         );
       },

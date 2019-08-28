@@ -196,7 +196,12 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
         while (currentFramecount == frameCount) await Future.delayed(Duration(milliseconds: secondaryDelay));
       }
 
-      animationController.forward(from: 0.5);
+      if (_peekAndPopController.isHero) {
+        HapticFeedback.mediumImpact();
+        animationController.value = 1.0;
+      } else {
+        animationController.forward(from: 0.5);
+      }
     }
   }
 
@@ -288,14 +293,14 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
         AnimatedBuilder(
           animation: animation,
           child: ValueListenableBuilder(
-            child: _peekAndPopController.useCache ? wrapper() : null,
+            child: _peekAndPopController.peekAndPopBuilderUseCache ? wrapper() : null,
             builder: (BuildContext context, int animationTracker, Widget cachedChild) {
               double secondaryScale = _peekAndPopController.peekScale +
                   _peekAndPopController.peekCoefficient * _peekAndPopController.animationController.value +
                   _peekAndPopController.secondaryAnimation.value;
               return Transform.scale(
                 scale: secondaryScale,
-                child: _peekAndPopController.useCache ? cachedChild : wrapper(),
+                child: _peekAndPopController.peekAndPopBuilderUseCache ? cachedChild : wrapper(),
               );
             },
             valueListenable: _peekAndPopController.animationTrackerNotifier,

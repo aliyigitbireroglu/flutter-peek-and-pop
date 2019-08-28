@@ -25,11 +25,14 @@ class PeekAndPopController extends StatefulWidget {
   ///The widget that is to be displayed on your regular UI.
   final Widget uiChild;
 
+  ///Set this to true if your [uiChild] doesn't change during the Peek & Pop process.
+  final bool uiChildUseCache;
+
   ///The view to be displayed during the Peek & Pop process.
   final PeekAndPopBuilder peekAndPopBuilder;
 
   ///Set this to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process.
-  final bool useCache;
+  final bool peekAndPopBuilderUseCache;
 
   ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Blur] widget.
   final double sigma;
@@ -124,8 +127,9 @@ class PeekAndPopController extends StatefulWidget {
 
   const PeekAndPopController(
     this.uiChild,
+    this.uiChildUseCache,
     this.peekAndPopBuilder,
-    this.useCache, {
+    this.peekAndPopBuilderUseCache, {
     Key key,
     this.sigma: 10,
     this.backdropColor: Colors.black,
@@ -160,8 +164,9 @@ class PeekAndPopController extends StatefulWidget {
   PeekAndPopControllerState createState() {
     return PeekAndPopControllerState(
       uiChild,
+      uiChildUseCache,
       peekAndPopBuilder,
-      useCache,
+      peekAndPopBuilderUseCache,
       sigma,
       backdropColor,
       alpha,
@@ -195,8 +200,9 @@ class PeekAndPopController extends StatefulWidget {
 
 class PeekAndPopControllerState extends State<PeekAndPopController> with TickerProviderStateMixin {
   final Widget uiChild;
+  final bool uiChildUseCache;
   final PeekAndPopBuilder peekAndPopBuilder;
-  final bool useCache;
+  final bool peekAndPopBuilderUseCache;
   final double sigma;
   final Color backdropColor;
   final int alpha;
@@ -280,8 +286,9 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
   PeekAndPopControllerState(
     this.uiChild,
+    this.uiChildUseCache,
     this.peekAndPopBuilder,
-    this.useCache,
+    this.peekAndPopBuilderUseCache,
     this.sigma,
     this.backdropColor,
     this.alpha,
@@ -785,7 +792,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (forward) {
       animationController.forward(from: animationController.value);
       secondaryAnimationController.forward(from: 0);
-      if (!useCache && peekAndPopChild != null && peekAndPopChild.isReady) peekAndPopChild.setState(() {}); //TODO: Check.
+      if (!peekAndPopBuilderUseCache && peekAndPopChild != null && peekAndPopChild.isReady) peekAndPopChild.setState(() {}); //TODO: Check.
     } else {
       animationController.reverse();
       secondaryAnimationController.reverse();

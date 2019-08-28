@@ -1,3 +1,9 @@
+## [0.2.1] - 23.08.2019
+
+* Improved Hero algorithm.
+
+* Minor changes.
+
 ## [0.2.0] - 23.08.2019
 
 * Improved performance.
