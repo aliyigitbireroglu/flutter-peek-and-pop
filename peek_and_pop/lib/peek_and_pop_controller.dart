@@ -8,13 +8,10 @@
 //@formatter:off
 
 import 'dart:ui';
+import 'dart:math';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 
 import 'gesture_detector.dart' as MyGestureDetector;
@@ -46,6 +43,14 @@ class PeekAndPopController extends StatefulWidget {
 
   ///An optional second view to be displayed during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
   final Widget overlayBuiler;
+
+  ///Set this to false if you do not want your [peekAndPopBuilder] to scale relative to your [uiChild]. When used with the [useOverlap], if the
+  ///[uiChild] matches the [peekAndPopBuilder] at least during the Peek stage, this feature can create a package compatible Hero effect.
+  final bool useAlignment;
+
+  ///Set this to false if you do not want your [peekAndPopBuilder] to scale from and to the size of your [uiChild]. When used with the [useAlignment]
+  ///feature, if the [uiChild] matches the [peekAndPopBuilder] at least during the Peek stage, this feature can create a package compatible Hero effect.
+  final bool useOverlap;
 
   ///Set this to false if you do not want your [uiChild] to be persistent on the screen until the Peek stage.
   final bool useIndicator;
@@ -135,6 +140,8 @@ class PeekAndPopController extends StatefulWidget {
     this.backdropColor: Colors.black,
     this.alpha: 126,
     this.overlayBuiler,
+    this.useAlignment: true,
+    this.useOverlap: false,
     this.useIndicator: true,
     this.isHero: false,
     this.willPeekAndPopComplete,
@@ -171,6 +178,8 @@ class PeekAndPopController extends StatefulWidget {
       backdropColor,
       alpha,
       overlayBuiler,
+      useAlignment,
+      useOverlap,
       useIndicator,
       isHero,
       willPeekAndPopComplete,
@@ -207,6 +216,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final Color backdropColor;
   final int alpha;
   final Widget overlayBuilder;
+  final bool useAlignment;
+  final bool useOverlap;
   final bool useIndicator;
   OverlayEntry indicator;
   final GlobalKey uiChildContainer = GlobalKey();
@@ -293,6 +304,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     this.backdropColor,
     this.alpha,
     this.overlayBuilder,
+    this.useAlignment,
+    this.useOverlap,
     this.useIndicator,
     this.isHero,
     this.willPeekAndPopComplete,
@@ -333,6 +346,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
         lastActionTime = DateTime.now();
         isComplete = true;
+        peekAndPopChild.blurTrackerNotifier.value += 1;
 
         if (callback != null) callback();
         break;
@@ -618,7 +632,9 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isDirect = true;
     ignoreAnimation = true;
 
-    Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this), popTransition)).whenComplete(() {
+    Navigator.of(context)
+        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, Alignment.bottomCenter, 0.5), popTransition))
+        .whenComplete(() {
       HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();
@@ -644,7 +660,29 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 4) print("Locking GestureBinding.");
     reroutePress();
 
-    Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this), popTransition)).whenComplete(() {
+    Alignment alignment = Alignment.center;
+    if (useAlignment) {
+      double width = MediaQuery.of(context).size.width;
+      double height = MediaQuery.of(context).size.height;
+      RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+      Offset position = renderBox.localToGlobal(Offset.zero);
+      Size size = renderBox.size;
+      alignment = Alignment(
+          ((position.dx + size.width / 2.0) - width / 2.0) / (width / 2.0), ((position.dy + size.height / 2.0) - height / 2.0) / (height / 2.0));
+    }
+    double overlapScale = 0.5;
+    if (useOverlap) {
+      double width = MediaQuery.of(context).size.width;
+      double height = MediaQuery.of(context).size.height;
+      RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+      Size size = renderBox.size;
+
+      overlapScale = min(size.width / width, size.height / height);
+    }
+
+    Navigator.of(context)
+        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, alignment, overlapScale), popTransition))
+        .whenComplete(() {
       HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();

@@ -12,10 +12,7 @@ import 'dart:ui' as ui;
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -31,16 +28,22 @@ import 'Export.dart';
 class PeekAndPopChild extends StatefulWidget {
   final PeekAndPopControllerState _peekAndPopController;
 
-  const PeekAndPopChild(this._peekAndPopController);
+  final Alignment alignment;
+  final double overlapScale;
+
+  const PeekAndPopChild(this._peekAndPopController, this.alignment, this.overlapScale);
 
   @override
   PeekAndPopChildState createState() {
-    return PeekAndPopChildState(_peekAndPopController);
+    return PeekAndPopChildState(_peekAndPopController, alignment, overlapScale);
   }
 }
 
 class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProviderStateMixin {
   final PeekAndPopControllerState _peekAndPopController;
+
+  final Alignment alignment;
+  final double overlapScale;
 
   ///The [AnimationController] used to set the scale of the view when it is initially pushed to the Navigator.
   AnimationController animationController;
@@ -72,7 +75,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   double width = -1;
   double height = -1;
 
-  PeekAndPopChildState(this._peekAndPopController);
+  PeekAndPopChildState(this._peekAndPopController, this.alignment, this.overlapScale);
 
   void animationStatusListener(AnimationStatus animationStatus) {
     switch (animationStatus) {
@@ -240,7 +243,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                     builder: (BuildContext context, Widget cachedChild) {
                       double sigma = _peekAndPopController.isComplete
                           ? 0
-                          : willPeek || isPeeking || animation.value == 1.0
+                          : willPeek || isPeeking || animationController.value == 1.0
                               ? _peekAndPopController.sigma
                               : min(_peekAndPopController.animationController.value / _peekAndPopController.treshold * _peekAndPopController.sigma,
                                   _peekAndPopController.sigma);
@@ -255,43 +258,46 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                     },
                   ),
                 ),
-                optimisationVersion == 0
-                    ? Image.memory(
-                        blurSnapshot,
-                        gaplessPlayback: true,
-                      )
-                    : height > width
-                        ? Row(
-                            children: [
-                              SizedBox(
-                                width: width * upscaleCoefficient,
-                                height: height,
-                                child: Image.memory(
-                                  blurSnapshot,
-                                  fit: BoxFit.fill,
+                Visibility(
+                  visible: !_peekAndPopController.isComplete,
+                  child: optimisationVersion == 0
+                      ? Image.memory(
+                          blurSnapshot,
+                          gaplessPlayback: true,
+                        )
+                      : height > width
+                          ? Row(
+                              children: [
+                                SizedBox(
+                                  width: width * upscaleCoefficient,
+                                  height: height,
+                                  child: Image.memory(
+                                    blurSnapshot,
+                                    fit: BoxFit.fill,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              SizedBox(
-                                width: width,
-                                height: height * upscaleCoefficient,
-                                child: Image.memory(
-                                  blurSnapshot,
-                                  fit: BoxFit.fill,
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                SizedBox(
+                                  width: width,
+                                  height: height * upscaleCoefficient,
+                                  child: Image.memory(
+                                    blurSnapshot,
+                                    fit: BoxFit.fill,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                ),
               ],
             );
           },
           valueListenable: blurTrackerNotifier,
         ),
         AnimatedBuilder(
-          animation: animation,
+          animation: animationController,
           child: ValueListenableBuilder(
             child: _peekAndPopController.peekAndPopBuilderUseCache ? wrapper() : null,
             builder: (BuildContext context, int animationTracker, Widget cachedChild) {
@@ -300,7 +306,18 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                   _peekAndPopController.secondaryAnimation.value;
               return Transform.scale(
                 scale: secondaryScale,
-                child: _peekAndPopController.peekAndPopBuilderUseCache ? cachedChild : wrapper(),
+                alignment: Tween<Alignment>(begin: alignment, end: Alignment.center).lerp(animationController.value),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 50,
+                      right: 200,
+                      top: 50,
+                      bottom: 600,
+                      child: _peekAndPopController.peekAndPopBuilderUseCache ? cachedChild : wrapper(),
+                    ),
+                  ],
+                ),
               );
             },
             valueListenable: _peekAndPopController.animationTrackerNotifier,
@@ -309,6 +326,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
             double primaryScale = _peekAndPopController.isHero ? 1.0 : animation.value;
             return Transform.scale(
               scale: primaryScale,
+              alignment: Tween<Alignment>(begin: alignment, end: Alignment.center).lerp(animationController.value),
               child: cachedChild,
             );
           },
