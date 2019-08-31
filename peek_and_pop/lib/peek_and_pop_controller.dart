@@ -8,7 +8,6 @@
 //@formatter:off
 
 import 'dart:ui';
-import 'dart:math';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -31,32 +30,40 @@ class PeekAndPopController extends StatefulWidget {
   ///Set this to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process.
   final bool peekAndPopBuilderUseCache;
 
+  ///The Quick Actions to be displayed if the view is dragged and snapped. Leave null if you do not wish to use Quick Actions.
+  final QuickActionsBuilder quickActionsBuilder;
+
   ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Blur] widget.
   final double sigma;
 
-  ///The color to be displayed over the [Blur] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.animationController]
+  ///The color to be displayed over the [Blur] widget. The alpha of this color is controlled by the [PeekAndPopControllerState.primaryAnimationController]
   ///based on your [alpha] value.
   final Color backdropColor;
 
-  ///The maximum alpha to be applied to your [backdropColor] by the [PeekAndPopControllerState.animationController].
+  ///The maximum alpha to be applied to your [backdropColor] by the [PeekAndPopControllerState.primaryAnimationController].
   final int alpha;
 
   ///An optional second view to be displayed during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
   final Widget overlayBuiler;
 
-  ///Set this to false if you do not want your [peekAndPopBuilder] to scale relative to your [uiChild]. When used with the [useOverlap], if the
-  ///[uiChild] matches the [peekAndPopBuilder] at least during the Peek stage, this feature can create a package compatible Hero effect.
-  final bool useAlignment;
-
-  ///Set this to false if you do not want your [peekAndPopBuilder] to scale from and to the size of your [uiChild]. When used with the [useAlignment]
-  ///feature, if the [uiChild] matches the [peekAndPopBuilder] at least during the Peek stage, this feature can create a package compatible Hero effect.
+  ///Set this to true if you want your [peekAndPopBuilder] to appear based on the Rect of your [uiChild]. If [customOverlapRect] is provided, it
+  ///will override the Rect of your [uiChild]. Not recommended to use at the same time as [useOverlap] but it won't cause problems as can be seen
+  ///in the example project.
   final bool useOverlap;
+
+  ///See [useOverlap].
+  final Rect customOverlapRect;
+
+  ///Set this to true if you want your [peekAndPopBuilder] to appear based on the center of your [uiChild]. If set to false, the
+  ///[peekAndPopBuilder] will appear from the center of the page. Not recommended to use at the same time as [useOverlap] but it won't cause
+  ///problems as can be seen in the example project.
+  final bool useAlignment;
 
   ///Set this to false if you do not want your [uiChild] to be persistent on the screen until the Peek stage.
   final bool useIndicator;
 
-  ///Set this to true if your [peekAndPopBuilder] uses a [Hero] widget.
-  final bool isHero;
+  ///The coefficient for determining how much the indicator should scale up during the Peek stage. 0.0 means no scaling.
+  final double indicatorScaleUpCoefficient;
 
   ///The callback for when the Peek & Pop process is about to successfully complete. You can return false to prevent the default action.
   final PeekAndPopProcessNotifier willPeekAndPopComplete;
@@ -123,12 +130,11 @@ class PeekAndPopController extends StatefulWidget {
   ///0.05 is recommended based on observations made by Swiss scientists.
   final double peekCoefficient;
 
-  //TODO Change the name of this variable as it can cause confusion.
   ///The transition to be used when:
   ///   a) The view is opened directly.
   ///   b) The view is closed.
   ///   (A default [SlideTransition] is provided.)
-  final Function popTransition;
+  final Function pageTransition;
 
   const PeekAndPopController(
     this.uiChild,
@@ -136,14 +142,16 @@ class PeekAndPopController extends StatefulWidget {
     this.peekAndPopBuilder,
     this.peekAndPopBuilderUseCache, {
     Key key,
+    this.quickActionsBuilder,
     this.sigma: 10,
     this.backdropColor: Colors.black,
     this.alpha: 126,
     this.overlayBuiler,
-    this.useAlignment: true,
-    this.useOverlap: false,
+    this.useOverlap: true,
+    this.customOverlapRect,
+    this.useAlignment: false,
     this.useIndicator: true,
-    this.isHero: false,
+    this.indicatorScaleUpCoefficient: 0.0,
     this.willPeekAndPopComplete,
     this.willPushPeekAndPop,
     this.willUpdatePeekAndPop,
@@ -164,7 +172,7 @@ class PeekAndPopController extends StatefulWidget {
     this.peakPressure: 1.0,
     this.peekScale: 0.5,
     this.peekCoefficient: 0.05,
-    this.popTransition,
+    this.pageTransition,
   }) : super(key: key);
 
   @override
@@ -174,14 +182,16 @@ class PeekAndPopController extends StatefulWidget {
       uiChildUseCache,
       peekAndPopBuilder,
       peekAndPopBuilderUseCache,
+      quickActionsBuilder,
       sigma,
       backdropColor,
       alpha,
-      overlayBuiler,
-      useAlignment,
       useOverlap,
+      customOverlapRect,
+      useAlignment,
+      overlayBuiler,
       useIndicator,
-      isHero,
+      indicatorScaleUpCoefficient,
       willPeekAndPopComplete,
       willPushPeekAndPop,
       willUpdatePeekAndPop,
@@ -202,7 +212,7 @@ class PeekAndPopController extends StatefulWidget {
       peakPressure,
       peekScale,
       peekCoefficient,
-      popTransition,
+      pageTransition,
     );
   }
 }
@@ -212,16 +222,23 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final bool uiChildUseCache;
   final PeekAndPopBuilder peekAndPopBuilder;
   final bool peekAndPopBuilderUseCache;
+  final QuickActionsBuilder quickActionsBuilder;
+  QuickActionsData quickActionsData;
+  bool get hasQuickActions {
+    return quickActionsData != null && quickActionsData.quickActions != null && quickActionsData.quickActions.length > 0;
+  }
+
   final double sigma;
   final Color backdropColor;
   final int alpha;
-  final Widget overlayBuilder;
-  final bool useAlignment;
   final bool useOverlap;
+  final Rect customOverlapRect;
+  final bool useAlignment;
+  final Widget overlayBuilder;
   final bool useIndicator;
+  final double indicatorScaleUpCoefficient;
   OverlayEntry indicator;
   final GlobalKey uiChildContainer = GlobalKey();
-  final bool isHero;
 
   final PeekAndPopProcessNotifier willPeekAndPopComplete;
   final PeekAndPopProcessNotifier willPushPeekAndPop;
@@ -247,7 +264,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final double peekScale;
   final double peekCoefficient;
 
-  final Function popTransition;
+  final Function pageTransition;
 
   PeekAndPopChildState peekAndPopChild;
 
@@ -256,7 +273,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   DateTime lastActionTime;
 
   ///The [AnimationController] used to set the values of the [Blur] widget and to set the scale of the view during the Peek stage.
-  AnimationController animationController;
+  AnimationController primaryAnimationController;
 
   ///The [AnimationController] used to set the scale of the view during the Pop stage for creating an iOS-Style jump effect.
   AnimationController secondaryAnimationController;
@@ -276,9 +293,18 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   final ValueNotifier<int> pressReroutedNotifier = ValueNotifier<int>(0);
 
-  bool isComplete = false;
+  ///A value for tracking the stage of the Peek & Pop process.
+  Stage stage = Stage.None;
 
-  bool isPushed = false;
+  ///A value for simply tracking if the Peek & Pop process will be completed.
+  bool get willBeDone {
+    return stage == Stage.WillComplete || stage == Stage.WillFinish;
+  }
+
+  ///A value for simply tracking if the Peek & Pop process is completed.
+  bool get isDone {
+    return stage == Stage.IsComplete || stage == Stage.IsFinished || stage == Stage.WillClose || stage == Stage.IsClosed;
+  }
 
   bool isDirect = false;
 
@@ -300,14 +326,16 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     this.uiChildUseCache,
     this.peekAndPopBuilder,
     this.peekAndPopBuilderUseCache,
+    this.quickActionsBuilder,
     this.sigma,
     this.backdropColor,
     this.alpha,
-    this.overlayBuilder,
-    this.useAlignment,
     this.useOverlap,
+    this.customOverlapRect,
+    this.useAlignment,
+    this.overlayBuilder,
     this.useIndicator,
-    this.isHero,
+    this.indicatorScaleUpCoefficient,
     this.willPeekAndPopComplete,
     this.willPushPeekAndPop,
     this.willUpdatePeekAndPop,
@@ -328,11 +356,12 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     this.peakPressure,
     this.peekScale,
     this.peekCoefficient,
-    this.popTransition,
+    this.pageTransition,
   );
 
-  void updateAnimationTrackerNotifier() {
+  void updateAnimationTrackerNotifiers() {
     animationTrackerNotifier.value += 1;
+    if (peekAndPopChild != null) peekAndPopChild.updateTrackerNotifiers();
   }
 
   void primaryAnimationStatusListener(AnimationStatus animationStatus) {
@@ -345,8 +374,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         HapticFeedback.mediumImpact();
 
         lastActionTime = DateTime.now();
-        isComplete = true;
-        peekAndPopChild.blurTrackerNotifier.value += 1;
+
+        stage = Stage.IsComplete;
+
+        if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
 
         if (callback != null) callback();
         break;
@@ -356,7 +387,13 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         HapticFeedback.mediumImpact();
 
         lastActionTime = DateTime.now();
+
         Navigator.of(context).pop();
+
+        stage = Stage.IsCancelled;
+        transformBloc.dispatch(0.0);
+
+        if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
 
         if (callback != null) callback();
         break;
@@ -371,11 +408,20 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     switch (animationStatus) {
       case AnimationStatus.completed:
-        secondaryAnimation = Tween(begin: 1.0 - peekScale - peekCoefficient, end: 1.0 - peekScale - peekCoefficient + 0.025)
-            .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
+        secondaryAnimation = Tween(
+          begin: 1.0 - peekScale - peekCoefficient,
+          end: 1.0 - peekScale - peekCoefficient + 0.025,
+        ).animate(
+          CurvedAnimation(
+            parent: secondaryAnimationController,
+            curve: Curves.decelerate,
+          ),
+        );
         secondaryAnimationController.reverse();
         break;
       case AnimationStatus.dismissed:
+        stage = Stage.IsFinished;
+        transformBloc.dispatch(0.0);
         break;
       default:
         break;
@@ -391,7 +437,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 1) print("PushComplete");
 
     this.peekAndPopChild = peekAndPopChild;
-    isPushed = true;
+
+    stage = Stage.IsPushed;
 
     pushTime = DateTime.now();
   }
@@ -404,21 +451,25 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///See [pushComplete].
   void unlockPress() {
     if (_debugLevel > 4) print("Unlocking GestureBinding.");
+
     isLocked = false;
   }
 
   ///See [pushComplete].
   Future reroutePress() async {
     if (_debugLevel > 4) print("Waiting for isPushed || !isLocked.");
-    while (!isPushed) await Future.delayed(const Duration(milliseconds: 1));
+
+    while (stage != Stage.IsPushed) await Future.delayed(const Duration(milliseconds: 1));
     isLocked = true;
     pressReroutedNotifier.value = 1;
     while (isLocked) await Future.delayed(const Duration(milliseconds: 1));
 
     if (_debugLevel > 4) print("Resuming GestureBinding.");
+
     window.onPointerDataPacket = pointerDataPacketCallback;
 
     if (_debugLevel > 4) print("Resetting GestureBinding.");
+
     PointerData lastPointerData = pointerDataPacket.data.last;
     PointerDataPacket pointerDataPacketUp = PointerDataPacket(
       data: [
@@ -575,8 +626,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     window.onPointerDataPacket(pointerDataPacketAdd);
     window.onPointerDataPacket(pointerDataPacketDown);
     window.onPointerDataPacket(pointerDataPacketMove);
-
-    if (onPushPeekAndPop != null) onPushPeekAndPop(this);
   }
 
   @override
@@ -585,13 +634,13 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     lastActionTime = DateTime.now();
 
-    animationController = AnimationController(
+    primaryAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 333),
       lowerBound: 0,
       upperBound: 1,
     )
-      ..addListener(updateAnimationTrackerNotifier)
+      ..addListener(updateAnimationTrackerNotifiers)
       ..addStatusListener(primaryAnimationStatusListener);
     secondaryAnimationController = AnimationController(
       vsync: this,
@@ -599,67 +648,64 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       lowerBound: 0,
       upperBound: 1,
     )
-      ..addListener(updateAnimationTrackerNotifier)
+      ..addListener(updateAnimationTrackerNotifiers)
       ..addStatusListener(secondaryAnimationStatusListener);
-    secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
-        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
+    secondaryAnimation = Tween(
+      begin: 0.0,
+      end: 1.0 - peekScale - peekCoefficient + 0.025,
+    ).animate(
+      CurvedAnimation(
+        parent: secondaryAnimationController,
+        curve: Curves.decelerate,
+      ),
+    );
   }
 
   @override
   void dispose() {
-    animationController.removeListener(updateAnimationTrackerNotifier);
-    animationController.removeStatusListener(primaryAnimationStatusListener);
-    animationController.dispose();
-    secondaryAnimation.removeListener(updateAnimationTrackerNotifier);
+    reset();
+
+    primaryAnimationController.removeListener(updateAnimationTrackerNotifiers);
+    primaryAnimationController.removeStatusListener(primaryAnimationStatusListener);
+    primaryAnimationController.dispose();
+    secondaryAnimation.removeListener(updateAnimationTrackerNotifiers);
     secondaryAnimationController.removeStatusListener(secondaryAnimationStatusListener);
     secondaryAnimationController.dispose();
 
     super.dispose();
   }
 
-  void peekAndPopComplete() {
-    if (willPeekAndPopComplete != null && !willPeekAndPopComplete(this)) return;
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
-
-    if (_debugLevel > 0) print("OnPeekAndPopComplete");
-
-    animationController.value = 1;
-    secondaryAnimation = Tween(begin: 1.0 - peekScale - peekCoefficient, end: 1.0 - peekScale - peekCoefficient + 0.025)
-        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
-    secondaryAnimationController.value = 0;
-    pressReroutedNotifier.value = 2;
-    isComplete = true;
-    isDirect = true;
-    ignoreAnimation = true;
-
-    Navigator.of(context)
-        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, Alignment.bottomCenter, 0.5), popTransition))
-        .whenComplete(() {
-      HapticFeedback.mediumImpact();
-
-      lastActionTime = DateTime.now();
-      Future.delayed(const Duration(milliseconds: 666), reset);
-
-      if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
-    });
+  Rect _getOverlapRect() {
+    RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+    Offset position = renderBox.localToGlobal(Offset.zero);
+    Size size = renderBox.size;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    return Rect.fromLTRB(
+      position.dx,
+      position.dy,
+      width - (position.dx + size.width),
+      height - (position.dy + size.height),
+    );
   }
 
-  bool firstPressIsPeak(double pressure) {
-    return pressure >= treshold * 0.75;
+  Rect getOverlapRect() {
+    RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+    Offset position = renderBox.localToGlobal(Offset.zero);
+    Size size = renderBox.size;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    if (isDirect || !useOverlap) return Rect.fromLTRB(0.0, 0.0, 0.0, 0.0);
+    if (customOverlapRect != null) return customOverlapRect;
+    return Rect.fromLTRB(
+      position.dx,
+      position.dy,
+      width - (position.dx + size.width),
+      height - (position.dy + size.height),
+    );
   }
 
-  void pushPeekAndPop(dynamic pressDetails) {
-    if (willPushPeekAndPop != null && !willPushPeekAndPop(this)) return;
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
-
-    if (_debugLevel > 0) print("PushPeekAndPop");
-
-    if (_debugLevel > 4) print("Pausing GestureBinding.");
-    pointerDataPacketCallback = window.onPointerDataPacket;
-    window.onPointerDataPacket = _pointerDataPacketCallback;
-    if (_debugLevel > 4) print("Locking GestureBinding.");
-    reroutePress();
-
+  Alignment getAlignment() {
     Alignment alignment = Alignment.center;
     if (useAlignment) {
       double width = MediaQuery.of(context).size.width;
@@ -668,24 +714,83 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       Offset position = renderBox.localToGlobal(Offset.zero);
       Size size = renderBox.size;
       alignment = Alignment(
-          ((position.dx + size.width / 2.0) - width / 2.0) / (width / 2.0), ((position.dy + size.height / 2.0) - height / 2.0) / (height / 2.0));
+        ((position.dx + size.width / 2.0) - width / 2.0) / (width / 2.0),
+        ((position.dy + size.height / 2.0) - height / 2.0) / (height / 2.0),
+      );
     }
-    double overlapScale = 0.5;
-    if (useOverlap) {
-      double width = MediaQuery.of(context).size.width;
-      double height = MediaQuery.of(context).size.height;
-      RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
-      Size size = renderBox.size;
+    return alignment;
+  }
 
-      overlapScale = min(size.width / width, size.height / height);
-    }
+  void peekAndPopComplete() {
+    if (willPeekAndPopComplete != null && !willPeekAndPopComplete(this)) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+
+    if (_debugLevel > 0) print("OnPeekAndPopComplete");
+
+    stage = Stage.WillComplete;
+
+    primaryAnimationController.value = 1;
+    secondaryAnimation = Tween(
+      begin: 1.0 - peekScale - peekCoefficient,
+      end: 1.0 - peekScale - peekCoefficient + 0.025,
+    ).animate(
+      CurvedAnimation(
+        parent: secondaryAnimationController,
+        curve: Curves.decelerate,
+      ),
+    );
+    secondaryAnimationController.value = 0;
+    pressReroutedNotifier.value = 2;
+    isDirect = true;
+    ignoreAnimation = true;
+
+    stage = Stage.IsComplete;
 
     Navigator.of(context)
-        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, alignment, overlapScale), popTransition))
+        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition))
         .whenComplete(() {
       HapticFeedback.mediumImpact();
 
       lastActionTime = DateTime.now();
+
+      Future.delayed(const Duration(milliseconds: 666), reset);
+
+      if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
+    });
+
+    pushTime = DateTime.now();
+  }
+
+  bool firstPressIsPeak(double pressure) {
+    return pressure >= treshold * 0.75;
+  }
+
+  void pushPeekAndPop(dynamic pressDetails) {
+    if (willPushPeekAndPop != null && !willPushPeekAndPop(this)) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+
+    if (_debugLevel > 0) print("PushPeekAndPop");
+
+    if (quickActionsBuilder != null) quickActionsData = quickActionsBuilder(this);
+
+    stage = Stage.WillPush;
+
+    if (_debugLevel > 4) print("Pausing GestureBinding.");
+
+    pointerDataPacketCallback = window.onPointerDataPacket;
+    window.onPointerDataPacket = _pointerDataPacketCallback;
+
+    if (_debugLevel > 4) print("Locking GestureBinding.");
+
+    reroutePress();
+
+    Navigator.of(context)
+        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition))
+        .whenComplete(() {
+      HapticFeedback.mediumImpact();
+
+      lastActionTime = DateTime.now();
+
       Future.delayed(const Duration(milliseconds: 666), reset);
 
       if (onPeekAndPopComplete != null) onPeekAndPopComplete(this);
@@ -700,53 +805,53 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       if (useIndicator) {
         indicator = buildIndicator(context);
         Overlay.of(context).insert(indicator);
+        Overlay.of(context).setState(() {});
       }
 
       jumpPeekAndPop(pressDetails.pressure);
       updatePeekAndPop(pressDetails.pressure);
     }
+
+    if (onPushPeekAndPop != null) onPushPeekAndPop(this);
   }
 
   OverlayEntry buildIndicator(context) {
-    RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
+    Rect rect = _getOverlapRect();
+
     return OverlayEntry(
       builder: (BuildContext context) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Transform.translate(
-                  offset: renderBox.localToGlobal(Offset.zero),
-                  child: SizedBox(
-                    width: renderBox.size.width,
-                    height: renderBox.size.height,
-                    child: IgnorePointer(
-                      child: Scaffold(
-                        backgroundColor: Colors.transparent,
-                        body: uiChild,
-                      ),
-                    ),
+        return scaleUpWrapper(
+          IgnorePointer(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Stack(
+                children: [
+                  Positioned(
+                    left: rect.left,
+                    top: rect.top,
+                    right: rect.right,
+                    bottom: rect.bottom,
+                    child: uiChild,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+          ),
+          indicatorScaleUpCoefficient,
         );
       },
     );
   }
 
   void updatePeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
+    if (hasQuickActions && peekAndPopChild != null && !peekAndPopChild.willUpdatePeekAndPop(this)) return;
     if (willUpdatePeekAndPop != null && !willUpdatePeekAndPop(this)) return;
-    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
 
     double pressure = pressDetails is double ? pressDetails : pressDetails.pressure;
+
     if (_debugLevel > 2) {
       if (!isFromOverlayEntry)
         print("PeekAndPopController: UpdatePeekAndPop = " + pressure.toString());
@@ -754,24 +859,29 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         print("PeekAndPopChild: UpdatePeekAndPop = " + pressure.toString());
     }
 
-    if (!peekAndPopChild.willPeek) jumpPeekAndPop(pressure);
-    if (pressure >= treshold) {
+    if (peekAndPopChild != null && peekAndPopChild.canPeek && pressure >= treshold) {
       if (useIndicator && indicator != null) {
         indicator.remove();
         indicator = null;
         Overlay.of(context).setState(() {});
       }
       peekAndPopChild.peek();
+
+      pushTime = DateTime.now();
     }
+    if (peekAndPopChild != null && !peekAndPopChild.willPeek) jumpPeekAndPop(pressure);
 
     if (onUpdatePeekAndPop != null) onUpdatePeekAndPop(this);
   }
 
   void cancelPeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
+    if (hasQuickActions && peekAndPopChild != null && !peekAndPopChild.willCancelPeekAndPop(this)) return;
     if (willCancelPeekAndPop != null && !willCancelPeekAndPop(this)) return;
-    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
+
+    stage = Stage.WillCancel;
 
     if (_debugLevel > 0) {
       if (!isFromOverlayEntry)
@@ -787,39 +897,49 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     }
 
     drivePeekAndPop(false);
-    if (peekAndPopChild.animationController.value != 0) peekAndPopChild.animationController.reverse();
+    if (peekAndPopChild != null) peekAndPopChild.animationController.reverse();
 
     if (onCancelPeekAndPop != null) onCancelPeekAndPop(this);
+    if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.onCancelPeekAndPop(this);
   }
 
   void finishPeekAndPop(dynamic pressDetails, {bool isFromOverlayEntry: false}) {
+    if (hasQuickActions && peekAndPopChild != null && !peekAndPopChild.willFinishPeekAndPop(this)) return;
     if (willFinishPeekAndPop != null && !willFinishPeekAndPop(this)) return;
-    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
     if (peekAndPopChild.animationController.status != AnimationStatus.completed) return;
     if (pushTime != null && DateTime.now().difference(pushTime).inSeconds < 1) return;
 
     if (_debugLevel > 0) print("finishPeekAndPop");
 
+    stage = Stage.WillFinish;
+
     pressReroutedNotifier.value = 2;
 
     drivePeekAndPop(true);
 
     if (onFinishPeekAndPop != null) onFinishPeekAndPop(this);
+    if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.onFinishPeekAndPop(this);
   }
 
   ///Use this function instead of using the Navigator.
   void closePeekAndPop() {
     if (willClosePeekAndPop != null && !willClosePeekAndPop(this)) return;
-    if (!isPushed || peekAndPopChild == null || !peekAndPopChild.isReady) return;
-    if (!isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (peekAndPopChild == null || !peekAndPopChild.isReady) return;
+    if (!isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 0) print("ClosePeekAndPop");
 
+    stage = Stage.WillClose;
+
     ignoreAnimation = true;
+
     Navigator.of(context).pop();
+
+    stage = Stage.IsClosed;
 
     if (onClosePeekAndPop != null) onClosePeekAndPop(this);
   }
@@ -828,11 +948,12 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("DrivePeekAndPop: $forward");
 
     if (forward) {
-      animationController.forward(from: animationController.value);
-      secondaryAnimationController.forward(from: 0);
-      if (!peekAndPopBuilderUseCache && peekAndPopChild != null && peekAndPopChild.isReady) peekAndPopChild.setState(() {}); //TODO: Check.
+      stage = Stage.WillComplete;
+
+      primaryAnimationController.forward();
+      secondaryAnimationController.forward();
     } else {
-      animationController.reverse();
+      primaryAnimationController.reverse();
       secondaryAnimationController.reverse();
     }
   }
@@ -840,60 +961,62 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   void jumpPeekAndPop(double value) {
     if (_debugLevel > 3) print("JumpPeekAndPop: $value");
 
-    if (value == 1)
+    if (value == 1.0)
       finishPeekAndPop(null);
     else
-      animationController.value = value;
+      primaryAnimationController.value = value;
   }
 
   void beginDrag(dynamic pressDetails) {
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 2) print("BeginDrag");
 
     if (onPressStart != null) onPressStart(pressDetails);
+    if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.beginDrag(pressDetails);
   }
 
   void updateDrag(dynamic pressDetails) {
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 2) print("UpdateDrag");
 
     if (onPressUpdate != null) onPressUpdate(pressDetails);
+    if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.updateDrag(pressDetails);
   }
 
   void endDrag(dynamic pressDetails) {
-    if (isComplete || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
+    if (isDone || DateTime.now().difference(lastActionTime).inSeconds < 1) return;
     if (secondaryAnimationController.isAnimating) return;
 
     if (_debugLevel > 2) print("EndDrag");
 
     if (onPressEnd != null) onPressEnd(pressDetails);
+    if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.endDrag(pressDetails);
   }
 
   void reset() {
-    peekAndPopChild?.reset();
     peekAndPopChild = null;
-    animationController.value = 0;
-    secondaryAnimationController.value = 0;
-    secondaryAnimation = Tween(begin: 0.0, end: 1.0 - peekScale - peekCoefficient + 0.025)
-        .animate(CurvedAnimation(parent: secondaryAnimationController, curve: Curves.decelerate));
+    primaryAnimationController.value = 0.0;
+    secondaryAnimationController.value = 0.0;
+    secondaryAnimation = Tween(
+      begin: 0.0,
+      end: 1.0 - peekScale - peekCoefficient + 0.025,
+    ).animate(
+      CurvedAnimation(
+        parent: secondaryAnimationController,
+        curve: Curves.decelerate,
+      ),
+    );
     animationTrackerNotifier.value = 0;
     pressReroutedNotifier.value = 0;
-    isComplete = false;
-    isPushed = false;
     pushTime = null;
     isDirect = false;
     ignoreAnimation = false;
-  }
 
-  ///A value for tracking the stage of the Peek & Pop process.
-  Stage get stage {
-    if (!isPushed) return Stage.Null;
-    if (secondaryAnimationController.isAnimating || isComplete) return Stage.Done;
-    return Stage.Null;
+    stage = Stage.None;
   }
 
   @override

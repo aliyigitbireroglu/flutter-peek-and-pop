@@ -9,44 +9,127 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'package:bloc/bloc.dart';
+
 import 'Export.dart';
 
 typedef PeekAndPopBuilder = Widget Function(BuildContext context, PeekAndPopControllerState _peekAndPopController);
 typedef PeekAndPopProcessNotifier = bool Function(PeekAndPopControllerState _peekAndPopController);
 typedef PeekAndPopProcessCallback = void Function(PeekAndPopControllerState _peekAndPopController);
 typedef PeekAndPopGestureCallback = void Function(dynamic pressDetails);
+typedef QuickActionsBuilder = QuickActionsData Function(PeekAndPopControllerState _peekAndPopController);
 
+///See [PeekAndPopControllerState.stage].
 enum Stage {
-  Null,
-  Done,
+  None,
+  WillPush,
+  IsPushed,
+  WillPeek,
+  IsPeeking,
+  WillCancel,
+  IsCancelled,
+  WillFinish,
+  IsFinished,
+  WillComplete,
+  IsComplete,
+  WillClose,
+  IsClosed,
 }
 
 ///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
 enum HeaderOffset {
   Zero,
   NegativeHalf,
+  NegativeFull,
   PositiveHalf,
+  PositiveFull,
 }
+
+///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
+final GlobalKey header = GlobalKey();
 
 ///The new optimised blur effect algorithm during the Peek & Pop process requires your root CupertinoApp/MaterialApp to be wrapped in a
 ///[RepaintBoundary] widget which uses this key. See README, [PeekAndPopChildState.blurSnapshot] or [PeekAndPopChildState.blurTrackerNotifier] for more
 ///info.
 final GlobalKey background = GlobalKey();
 
-///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
-final GlobalKey header = GlobalKey();
+///See [TransformBloc], [scaleUpWrapper] and [scaleDownWrapper].
+TransformBloc transformBloc = TransformBloc();
+
+///Use this function to scale down a widget as the Peek & Pop process proceeds.
+Widget scaleDownWrapper(Widget child, double scaleDownCoefficient) {
+  return StreamBuilder(
+    stream: transformBloc.state,
+    builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+      return Transform.scale(
+        scale: snapshot.hasData ? (1.0 - (snapshot.data * scaleDownCoefficient)) : 1.0,
+        child: child,
+      );
+    },
+  );
+}
+
+///Use this function to scale up a widget as the Peek & Pop process proceeds.
+Widget scaleUpWrapper(Widget child, double scaleUpCoefficient) {
+  return StreamBuilder(
+    stream: transformBloc.state,
+    builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+      return Transform.scale(
+        scale: snapshot.hasData ? (1.0 + (snapshot.data * scaleUpCoefficient)) : 1.0,
+        child: child,
+      );
+    },
+  );
+}
+
+///A Bloc class for controlling the [scaleDownWrapper] and [scaleUpWrapper].
+class TransformBloc extends Bloc<double, double> {
+  @override
+  double initialState = 0.0;
+
+  @override
+  Stream<double> mapEventToState(double newState) async* {
+    yield newState;
+  }
+}
+
+///A simple class for organising general Quick Actions information.
+class QuickActionsData {
+  final BorderRadius borderRadius;
+  final List<QuickAction> quickActions;
+
+  const QuickActionsData(
+    this.borderRadius,
+    this.quickActions,
+  );
+}
+
+///A simple class for organising an individual Quick Action information.
+class QuickAction {
+  final double height;
+  final Function onTap;
+  final BoxDecoration boxDecoration;
+  final Widget child;
+
+  const QuickAction(
+    this.height,
+    this.onTap,
+    this.boxDecoration,
+    this.child,
+  );
+}
 
 class PeekAndPopRoute<T> extends PageRoute<T> {
   final PeekAndPopControllerState _peekAndPopController;
 
   final WidgetBuilder builder;
 
-  final Function popTransition;
+  final Function pageTransition;
 
   PeekAndPopRoute(
     this._peekAndPopController,
     this.builder,
-    this.popTransition,
+    this.pageTransition,
   );
 
   @override
@@ -69,22 +152,22 @@ class PeekAndPopRoute<T> extends PageRoute<T> {
 
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-    if (!_peekAndPopController.isComplete && !_peekAndPopController.isDirect && !_peekAndPopController.ignoreAnimation)
-      return child;
-    else {
-      if (popTransition == null)
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      else
-        return popTransition(
-          context,
-          animation,
-          secondaryAnimation,
-          child,
-        );
-    }
+    if (!_peekAndPopController.isDirect && !_peekAndPopController.ignoreAnimation && _peekAndPopController.stage != Stage.IsComplete) return child;
+
+    if (pageTransition == null)
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.0, 1.0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      );
+    return pageTransition(
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
   }
 
   @override

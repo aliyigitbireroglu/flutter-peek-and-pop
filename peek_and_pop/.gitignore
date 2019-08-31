@@ -3,6 +3,7 @@
 /build
 /ios
 .todo.dart
+.notes.dart
 
 # Miscellaneous
 *.class

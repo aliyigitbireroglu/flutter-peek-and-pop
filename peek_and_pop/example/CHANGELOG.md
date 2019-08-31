@@ -1,8 +1,35 @@
-## [0.2.1] - 23.08.2019
+## [1.0.0] - 30.08.2019
 
-* Improved Hero algorithm.
+* The "Quick Actions" feature is now added. It is highly customisable and you can show a dynamic menu with quick action buttons as the view is 
+dragged and snapped very easily. The drag and snap limits will be automatically set according to the menu and the view. 
+[snap](https://pub.dev/packages/snap) is now implemented directly to the package. See this [video]() for examples.
 
-* Minor changes.
+* The "Overlap" and "Alignment" features are now added. These two features create a much more fluent Peek & Pop process that is much more similar 
+to the actual iOS version. See this [video]() for examples.
+
+* The "Scale Up" and "Scale Down" features are now added. You can use these features to scale a widget down or up as the Peek & Pop process 
+proceeds. "Scale Up" is also supported for the "Indicator" feature out of the box. See this [video]() for examples.
+
+* "isHero" is now removed. It wasn't playing well with the package algorithm and it is considered to be unnecessary for the Peek & Pop process. 
+However, this shouldn't be a problem due to the addition of the new "Overlap" and "Alignment" features. If you must use a Hero widget, only use it 
+while "willBeDone" or "isDone" is true.
+
+* A workaround is implemented to avoid a Flutter Engine bug that was causing trouble with the optimised blur effect algorithm.
+
+* Improved enumeration for the stage of the Peek & Pop process.
+
+* Improved performance.
+
+* Fine tuning.
+
+* Improved code style.
+
+* Improved example project.
+
+* Updated README.
+
+* Old installation instructions are removed. If you wish (for some reason) to use a version older than v0.1.9, see the README of that version for 
+the relevant installation instructions.
 
 ## [0.2.0] - 23.08.2019
 
@@ -18,7 +45,7 @@
 
 * Modifications to Flutter's normal "binding.dart" are no longer required!
 
-* The Long Press version is temporarily removed. It will be added back with the next update.
+* The Long Press version is temporarily removed. It will be added back soon.
 
 * Code excerpt added to the README.
 

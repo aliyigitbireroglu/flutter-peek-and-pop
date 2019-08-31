@@ -1,6 +1,6 @@
 name: example
 description: Example Project for peek_and_pop.
-version: 0.2.1
+version: 1.0.0
 author: Ali Yigit Bireroglu <aliyigitbireroglu@gmail.com>
 repository: https://github.com/aliyigitbireroglu/flutter-peek-and-pop
 homepage: https://www.cosmossoftware.coffee
@@ -13,7 +13,6 @@ dependencies:
     sdk: flutter
   peek_and_pop:
     path: ../
-  snap: ^1.0.2+1
   cupertino_icons: ^0.1.2
   webview_flutter: ^0.3.13
 
@@ -25,5 +24,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/Hero.png
-    - assets/Scenery.jpeg
+    - assets/
