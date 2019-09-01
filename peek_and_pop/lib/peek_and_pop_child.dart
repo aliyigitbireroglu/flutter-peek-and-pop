@@ -88,8 +88,11 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   final int loopCount = 1;
   final int primaryDelay = 1;
   final int secondaryDelay = 2;
-  final int toImageCount = 5;
+  final int toImageCount = 4;
   final double upscaleCoefficient = 1.01;
+
+  double width = -1;
+  double height = -1;
 
   PeekAndPopChildState(
     this._peekAndPopController,
@@ -167,7 +170,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
 
     snapController.currentState.snapTargets.add(SnapTarget(Offset(0.0, limitBase), Pivot.topLeft));
     snapController.currentState.snapTargets.add(SnapTarget(Offset(1.0, limitBase), Pivot.topRight));
-    snapController.currentState.softReset(Offset(0.0, limitBase + 0.1), Offset(1.0, 1.0));
+    snapController.currentState.softReset(Offset(0.0, limitBase == -0.1 ? limitBase + 0.1 : limitBase * -1.0), Offset(1.0, 1.0));
   }
 
   void beginDrag(dynamic pressDetails) {
@@ -305,11 +308,37 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     return 0;
   }
 
+  //TODO: Improve.
+  double get minimumLengthInBytes {
+//    double width = MediaQuery.of(context).size.width;
+//    double height = MediaQuery.of(context).size.height;
+//    return width * height * 0.1 * 0.5;
+    return _peekAndPopController.minimumLengthInBytes;
+  }
+
+  bool shouldContinueToImage(Map<ByteData, int> map) {
+    if (map.length < toImageCount) return true;
+    //print(minimumLengthInBytes);
+    return map.values.toList().indexWhere((int lengthInBytes) {
+          return lengthInBytes > minimumLengthInBytes;
+        }) ==
+        -1;
+  }
+
+  bool canBreakToImage(Map<ByteData, int> map, ByteData byteData) {
+    return map.values.toList().indexWhere((int lengthInBytes) {
+          return (byteData.lengthInBytes * 1.0) / (lengthInBytes * 1.0) > 10.0 || (lengthInBytes * 1.0) / byteData.lengthInBytes * 1.0 > 10.0;
+        }) >
+        -1;
+  }
+
   void peek() async {
     if (canPeek) {
       isPeeking = false;
       willPeek = true;
       _peekAndPopController.stage = Stage.WillPeek;
+      //print(_peekAndPopController.stage);
+      transformBloc.dispatch(1.0);
 
       int currentFramecount = 0;
 
@@ -323,16 +352,14 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       RenderRepaintBoundary renderBackground = background.currentContext.findRenderObject();
       List<ui.Image> images = [];
       Map<ByteData, int> map = Map<ByteData, int>();
-      for (int i = 0; i < toImageCount; i++) {
+      while (shouldContinueToImage(map)) {
         images.add(await renderBackground.toImage(
           pixelRatio: WidgetsBinding.instance.window.devicePixelRatio * 0.1,
         ));
         ByteData byteData = await images.last.toByteData(format: ImageByteFormat.png);
         map[byteData] = byteData.lengthInBytes;
-        if (map.values.toList().indexWhere((int lengthInBytes) {
-              return (byteData.lengthInBytes * 1.0) / (lengthInBytes * 1.0) > 10.0 || (lengthInBytes * 1.0) / byteData.lengthInBytes * 1.0 > 10.0;
-            }) >
-            -1) {
+        //print(byteData.lengthInBytes);
+        if (canBreakToImage(map, byteData)) {
           //print("Breaking because a significantly larger file is found.");
           break;
         }
@@ -341,6 +368,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
         return map[byteData] == map.values.reduce(max);
       });
       blurSnapshot = byteData.buffer.asUint8List();
+      _peekAndPopController.minimumLengthInBytes = byteData.lengthInBytes * 0.5;
 
       for (int i = 0; i < loopCount; i++) {
         currentFramecount = frameCount;
@@ -351,6 +379,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       isPeeking = true;
       willPeek = false;
       _peekAndPopController.stage = Stage.IsPeeking;
+      //print(_peekAndPopController.stage);
 
       currentFramecount = frameCount;
       blurTrackerNotifier.value++;
@@ -424,6 +453,11 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
   ///the [Blur] and the [MyGestureDetector.GestureDetector] widgets.
   @override
   Widget build(BuildContext context) {
+    if (width == -1 || height == -1) {
+      width = MediaQuery.of(context).size.width;
+      height = MediaQuery.of(context).size.height;
+    }
+
     return Stack(
       children: [
         ValueListenableBuilder(
@@ -473,8 +507,8 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                     child: AnimatedBuilder(
                       animation: animationController,
                       builder: (BuildContext context, Widget cachedChild) {
-                        double width = MediaQuery.of(context).size.width;
-                        double height = MediaQuery.of(context).size.height;
+//                        double width = MediaQuery.of(context).size.width;
+//                        double height = MediaQuery.of(context).size.height;
                         double opacity = _peekAndPopController.stage == Stage.WillCancel || _peekAndPopController.stage == Stage.IsCancelled
                             ? animationController.value
                             : 1.0;

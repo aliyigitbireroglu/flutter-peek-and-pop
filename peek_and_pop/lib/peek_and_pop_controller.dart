@@ -318,6 +318,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   ///[PeekAndPopChild] or vice-versa.
   Function callback;
 
+  double width = -1;
+  double height = -1;
+  double minimumLengthInBytes = 5000;
+
   ///Use this value to determine the depth of debug logging that is actually only here for myself and the Swiss scientists.
   final int _debugLevel = 0;
 
@@ -376,6 +380,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         lastActionTime = DateTime.now();
 
         stage = Stage.IsComplete;
+        //print(stage);
 
         if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
 
@@ -391,6 +396,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         Navigator.of(context).pop();
 
         stage = Stage.IsCancelled;
+        //print(stage);
         transformBloc.dispatch(0.0);
 
         if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
@@ -421,6 +427,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         break;
       case AnimationStatus.dismissed:
         stage = Stage.IsFinished;
+        //print(stage);
         transformBloc.dispatch(0.0);
         break;
       default:
@@ -438,7 +445,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     this.peekAndPopChild = peekAndPopChild;
 
-    stage = Stage.IsPushed;
+    if (!isDirect) {
+      stage = Stage.IsPushed;
+      //print(stage);
+    }
 
     pushTime = DateTime.now();
   }
@@ -679,8 +689,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
     Offset position = renderBox.localToGlobal(Offset.zero);
     Size size = renderBox.size;
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+//    double width = MediaQuery.of(context).size.width;
+//    double height = MediaQuery.of(context).size.height;
     return Rect.fromLTRB(
       position.dx,
       position.dy,
@@ -693,8 +703,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
     Offset position = renderBox.localToGlobal(Offset.zero);
     Size size = renderBox.size;
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+//    double width = MediaQuery.of(context).size.width;
+//    double height = MediaQuery.of(context).size.height;
     if (isDirect || !useOverlap) return Rect.fromLTRB(0.0, 0.0, 0.0, 0.0);
     if (customOverlapRect != null) return customOverlapRect;
     return Rect.fromLTRB(
@@ -708,8 +718,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   Alignment getAlignment() {
     Alignment alignment = Alignment.center;
     if (useAlignment) {
-      double width = MediaQuery.of(context).size.width;
-      double height = MediaQuery.of(context).size.height;
+//      double width = MediaQuery.of(context).size.width;
+//      double height = MediaQuery.of(context).size.height;
       RenderBox renderBox = uiChildContainer.currentContext.findRenderObject();
       Offset position = renderBox.localToGlobal(Offset.zero);
       Size size = renderBox.size;
@@ -728,6 +738,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("OnPeekAndPopComplete");
 
     stage = Stage.WillComplete;
+    //print(stage);
 
     primaryAnimationController.value = 1;
     secondaryAnimation = Tween(
@@ -745,6 +756,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     ignoreAnimation = true;
 
     stage = Stage.IsComplete;
+    //print(stage);
 
     Navigator.of(context)
         .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition))
@@ -774,6 +786,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (quickActionsBuilder != null) quickActionsData = quickActionsBuilder(this);
 
     stage = Stage.WillPush;
+    //print(stage);
 
     if (_debugLevel > 4) print("Pausing GestureBinding.");
 
@@ -882,6 +895,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (secondaryAnimationController.isAnimating) return;
 
     stage = Stage.WillCancel;
+    //print(stage);
 
     if (_debugLevel > 0) {
       if (!isFromOverlayEntry)
@@ -915,6 +929,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("finishPeekAndPop");
 
     stage = Stage.WillFinish;
+    //print(stage);
 
     pressReroutedNotifier.value = 2;
 
@@ -934,12 +949,14 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("ClosePeekAndPop");
 
     stage = Stage.WillClose;
+    //print(stage);
 
     ignoreAnimation = true;
 
     Navigator.of(context).pop();
 
     stage = Stage.IsClosed;
+    //print(stage);
 
     if (onClosePeekAndPop != null) onClosePeekAndPop(this);
   }
@@ -949,6 +966,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (forward) {
       stage = Stage.WillComplete;
+      //print(stage);
 
       primaryAnimationController.forward();
       secondaryAnimationController.forward();
@@ -1017,10 +1035,16 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     ignoreAnimation = false;
 
     stage = Stage.None;
+    //print(stage);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (width == -1 || height == -1) {
+      width = MediaQuery.of(context).size.width;
+      height = MediaQuery.of(context).size.height;
+    }
+
     return PeekAndPopDetector(
       this,
       Container(

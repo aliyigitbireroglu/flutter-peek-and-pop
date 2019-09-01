@@ -25,8 +25,6 @@ PeekAndPopControllerState peekAndPopController;
 
 final GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
 
-double screenHeight;
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -632,6 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   useOverlap: true,
                   useAlignment: false,
                   indicatorScaleUpCoefficient: 0.01,
+                  onPushPeekAndPop: onPushPeekAndPop,
                   peekScale: 0.95,
                   peekCoefficient: 0.025,
                 );

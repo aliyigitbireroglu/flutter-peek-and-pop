@@ -4,14 +4,22 @@
 <a href="https://www.cosmossoftware.coffee">
    <img alt="Cosmos Software" src="https://img.shields.io/badge/Cosmos%20Software-Love%20Code-red" />
 </a>
+<a href="https://www.cosmossoftware.coffee">
+   <img alt="Cosmos Software" src="https://img.shields.io/badge/Developer's-Choice-yellow" />
+</a>
+<br>
+
 <a href="https://github.com/Solido/awesome-flutter">
    <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square" />
 </a>
+<br>
 
 [![Pub](https://img.shields.io/pub/v/peek_and_pop?color=g)](https://pub.dev/packages/peek_and_pop)
 [![License](https://img.shields.io/github/license/aliyigitbireroglu/flutter-peek-and-pop?color=blue)](https://github.com/aliyigitbireroglu/flutter-peek-and-pop/blob/master/LICENSE)
 
 [comment]: <> (Introduction)
+<img src="https://www.cosmossoftware.coffee/Common/Portfolio/Images/FlutterPeekAndPopMockUp.jpg" max-height="450"/>
+<br><br>
 Peek & Pop implementation for Flutter based on the iOS functionality of the same name.
 
 **Finally, the v1.0.0 release! More fluent, more optimised and more beautiful than ever. Very customisable and very easy to use.**
@@ -63,7 +71,7 @@ Peek & Pop implementation for Flutter based on the iOS functionality of the same
 
 Watch on **Youtube**:
   
-[**v1.0.0**]()
+[**v1.0.0 Showcase Demo**](https://youtu.be/IQq_ty5mRYU) | [**v1.0.0 Technical Preview**](https://youtu.be/hIjoWfP0krA)
 <br><br>
 [v0.1.7](https://youtu.be/wOWCV7HJzwc)
 
@@ -71,7 +79,8 @@ Watch on **Youtube**:
  
 [v0.0.1 Normal](https://youtu.be/PaEpU31z_7Q) | [v0.0.1 Moveable](https://youtu.be/3TjCFwHoOiE) | [v0.0.1 Platform View](https://youtu.be/489YB-QuJ3k) | [v0.0.1 Hero](https://youtu.be/36DAwnFKSKI)
 <br><br>
-<img src="https://www.cosmossoftware.coffee/Common/Portfolio/GIFs/FlutterPeekAndPopNew.gif" max-height="450"/>
+<img src="https://www.cosmossoftware.coffee/Common/Portfolio/GIFs/FlutterPeekAndPopShowcase.gif" max-height="450"/>
+<img src="https://www.cosmossoftware.coffee/Common/Portfolio/GIFs/FlutterPeekAndPopTechnical.gif" max-height="450"/>
 <br><br>
 
 
@@ -85,6 +94,7 @@ this would be appreciated.
 
 ~~For devices that don't support Force Press, the package comes with an adaptation to Long Press *however* the Long Press version of this package is 
 still under development and is not yet fully tested so consider it as a developers preview.~~ 
+
 (The Long Press version is temporarily removed. It will be added back soon.)
 
 ##
@@ -169,6 +179,22 @@ class MyApp extends StatelessWidget {
 }
 ```
 
+If you wish to use the "ScaleUp" or the "Scale Down" features, wrap the widgets you wish to scale down or scale up during the Peek & Pop process with 
+the scaleUpWrapper and scaleDownWrapper functions from "misc.dart":
+
+```
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+  appBar: AppBar(title: Text(widget.title)),
+  body: PeekAndPopMisc.scaleDownWrapper(
+        ...,
+        0.04,
+        ),
+    );    
+}
+```
+
 Then, create a PeekAndPopController such as:
 
 ```
@@ -177,39 +203,46 @@ PeekAndPopController(
   false,                //bool uiChildUseCache
   peekAndPopBuilder,    //PeekAndPopBuilder peekAndPopBuilder
   false,                //bool peekAndPopBuilderUseCache
- {sigma                 : 10,
-  backdropColor         : Colors.black,
-  alpha                 : 126,
-  overlayBuilder,
-  useOverlap            : true,
+ {Key key,
+  quickActionsBuilder           : quickActionsBuilder,
+  sigma                         : 10,
+  backdropColor                 : Colors.black,
+  alpha                         : 126,
+  overlayBuilder                : overlayBuilder,
+  useOverlap                    : true,
   customOverlapRect,
-  useAlignment,         : false,
-  useIndicator          : true,
-  willPeekAndPopComplete: _willPeekAndPopComplete,
-  willPushPeekAndPop    : _willPushPeekAndPop,
-  willUpdatePeekAndPop  : _willUpdatePeekAndPop,
-  willCancelPeekAndPop  : _willCancelPeekAndPop,
-  willFinishPeekAndPop  : _willFinishPeekAndPop,
-  willClosePeekAndPop   : _willClosePeekAndPop,
-  onPeekAndPopComplete  : _onPeekAndPopComplete,
-  onPushPeekAndPop      : _onPushPeekAndPop,
-  onUpdatePeekAndPop    : _onUpdatePeekAndPop,
-  onCancelPeekAndPop    : _onCancelPeekAndPop,
-  onFinishPeekAndPop    : _onFinishPeekAndPop,
-  onClosePeekAndPop     : _onFinishPeekAndPop,
-  onPressStart          : _onPressStart,
-  onPressUpdate         : _onPressUpdate,
-  onPressEnd            : _onPressEnd,
-  treshold              : 0.5,
-  startPressure         : 0.125,
-  peakPressure          : 1.0,
-  peekScale             : 0.5,
-  peekCoefficient       : 0.05,
+  useAlignment,                 : false,
+  useIndicator                  : true,
+  indicatorScaleUpCoefficient   : 0.01,
+  willPeekAndPopComplete        : _willPeekAndPopComplete,
+  willPushPeekAndPop            : _willPushPeekAndPop,
+  willUpdatePeekAndPop          : _willUpdatePeekAndPop,
+  willCancelPeekAndPop          : _willCancelPeekAndPop,
+  willFinishPeekAndPop          : _willFinishPeekAndPop,
+  willClosePeekAndPop           : _willClosePeekAndPop,
+  onPeekAndPopComplete          : _onPeekAndPopComplete,
+  onPushPeekAndPop              : _onPushPeekAndPop,
+  onUpdatePeekAndPop            : _onUpdatePeekAndPop,
+  onCancelPeekAndPop            : _onCancelPeekAndPop,
+  onFinishPeekAndPop            : _onFinishPeekAndPop,
+  onClosePeekAndPop             : _onFinishPeekAndPop,
+  onPressStart                  : _onPressStart,
+  onPressUpdate                 : _onPressUpdate,
+  onPressEnd                    : _onPressEnd,
+  treshold                      : 0.5,
+  startPressure                 : 0.125,
+  peakPressure                  : 1.0,
+  peekScale                     : 0.5,
+  peekCoefficient               : 0.05,
   popTransition})
   
 Widget uiChild() {}
 
 Widget peekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController);
+
+QuickActionsData quickActionsBuilder(PeekAndPopControllerState _peekAndPopController);
+
+Widget overlayBuiler();
 
 bool _willPeekAndPopComplete(PeekAndPopControllerState _peekAndPopController);
 bool _willPushPeekAndPop(PeekAndPopControllerState _peekAndPopController);

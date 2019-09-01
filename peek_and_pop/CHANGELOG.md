@@ -2,13 +2,13 @@
 
 * The "Quick Actions" feature is now added. It is highly customisable and you can show a dynamic menu with quick action buttons as the view is 
 dragged and snapped very easily. The drag and snap limits will be automatically set according to the menu and the view. 
-[snap](https://pub.dev/packages/snap) is now implemented directly to the package. See this [video]() for examples.
+[snap](https://pub.dev/packages/snap) is now implemented directly to the package. See this [video](https://youtu.be/IQq_ty5mRYU) for examples.
 
 * The "Overlap" and "Alignment" features are now added. These two features create a much more fluent Peek & Pop process that is much more similar 
-to the actual iOS version. See this [video]() for examples.
+to the actual iOS version. See this [video](https://youtu.be/IQq_ty5mRYU) for examples.
 
 * The "Scale Up" and "Scale Down" features are now added. You can use these features to scale a widget down or up as the Peek & Pop process 
-proceeds. "Scale Up" is also supported for the "Indicator" feature out of the box. See this [video]() for examples.
+proceeds. "Scale Up" is also supported for the "Indicator" feature out of the box. See this [video](https://youtu.be/IQq_ty5mRYU) for examples.
 
 * "isHero" is now removed. It wasn't playing well with the package algorithm and it is considered to be unnecessary for the Peek & Pop process. 
 However, this shouldn't be a problem due to the addition of the new "Overlap" and "Alignment" features. If you must use a Hero widget, only use it 
