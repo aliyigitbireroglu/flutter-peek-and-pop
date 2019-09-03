@@ -1,3 +1,7 @@
+## [1.0.1] - 03.09.2019
+
+* Minor changes.
+
 ## [1.0.0] - 30.08.2019
 
 * The "Quick Actions" feature is now added. It is highly customisable and you can show a dynamic menu with quick action buttons as the view is 

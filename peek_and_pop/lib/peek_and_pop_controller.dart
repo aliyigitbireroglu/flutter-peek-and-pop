@@ -379,11 +379,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
         lastActionTime = DateTime.now();
 
-        stage = Stage.IsComplete;
-        //print(stage);
-
-        if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
-
         if (callback != null) callback();
         break;
       case AnimationStatus.dismissed:
@@ -429,6 +424,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         stage = Stage.IsFinished;
         //print(stage);
         transformBloc.dispatch(0.0);
+
+        if (peekAndPopChild != null) peekAndPopChild.blurTrackerNotifier.value += 1;
         break;
       default:
         break;
@@ -965,9 +962,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("DrivePeekAndPop: $forward");
 
     if (forward) {
-      stage = Stage.WillComplete;
-      //print(stage);
-
       primaryAnimationController.forward();
       secondaryAnimationController.forward();
     } else {
@@ -1033,9 +1027,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     pushTime = null;
     isDirect = false;
     ignoreAnimation = false;
-
-    stage = Stage.None;
-    //print(stage);
   }
 
   @override

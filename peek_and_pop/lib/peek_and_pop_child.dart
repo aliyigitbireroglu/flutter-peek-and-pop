@@ -273,6 +273,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     willPeek = false;
     isPeeking = false;
     frameCount = 0;
+
+    _peekAndPopController.stage = Stage.None;
+    //print(_peekAndPopController.stage);
   }
 
   ///Tests conducted by Swiss scientists have shown that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height
@@ -466,23 +469,17 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
             return Stack(
               children: [
                 Visibility(
-                  visible: !isPeeking,
+                  visible:
+                      !isPeeking && !_peekAndPopController.willBeDone && !_peekAndPopController.isDone && _peekAndPopController.stage != Stage.None,
                   child: AnimatedBuilder(
                     animation: _peekAndPopController.primaryAnimationController,
                     builder: (BuildContext context, Widget cachedChild) {
-                      double sigma = _peekAndPopController.stage == Stage.None ||
-                              _peekAndPopController.stage == Stage.WillClose ||
-                              _peekAndPopController.stage == Stage.IsClosed ||
-                              _peekAndPopController.isDone
-                          ? 0
-                          : willPeek || isPeeking || animationController.value == 1.0
-                              ? _peekAndPopController.sigma
-                              : min(
-                                  _peekAndPopController.primaryAnimationController.value /
-                                      _peekAndPopController.treshold *
-                                      _peekAndPopController.sigma,
-                                  _peekAndPopController.sigma,
-                                );
+                      double sigma = willPeek || isPeeking || animationController.isAnimating || animationController.value == 1.0
+                          ? _peekAndPopController.sigma
+                          : min(
+                              _peekAndPopController.primaryAnimationController.value / _peekAndPopController.treshold * _peekAndPopController.sigma,
+                              _peekAndPopController.sigma,
+                            );
                       double alpha = sigma / _peekAndPopController.sigma;
                       if (sigma != 0.0) transformBloc.dispatch(alpha);
 
@@ -500,10 +497,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                   ),
                 ),
                 Visibility(
-                    visible: !(_peekAndPopController.stage == Stage.None ||
-                        _peekAndPopController.stage == Stage.WillClose ||
-                        _peekAndPopController.stage == Stage.IsClosed ||
-                        _peekAndPopController.isDone),
+                    visible: !_peekAndPopController.isDone && _peekAndPopController.stage != Stage.None,
                     child: AnimatedBuilder(
                       animation: animationController,
                       builder: (BuildContext context, Widget cachedChild) {
