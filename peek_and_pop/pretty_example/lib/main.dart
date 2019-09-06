@@ -166,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   QuickActionsData gridQuickActionsBuilder(PeekAndPopControllerState _peekAndPopController) {
     return QuickActionsData(
+      const EdgeInsets.only(left: 12.5, top: 25, right: 12.5, bottom: 25),
       const BorderRadius.all(const Radius.circular(10.0)),
       [
         QuickAction(

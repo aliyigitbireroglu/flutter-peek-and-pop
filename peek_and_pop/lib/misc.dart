@@ -95,10 +95,12 @@ class TransformBloc extends Bloc<double, double> {
 
 ///A simple class for organising general Quick Actions information.
 class QuickActionsData {
+  final EdgeInsets padding;
   final BorderRadius borderRadius;
   final List<QuickAction> quickActions;
 
   const QuickActionsData(
+    this.padding,
     this.borderRadius,
     this.quickActions,
   );
