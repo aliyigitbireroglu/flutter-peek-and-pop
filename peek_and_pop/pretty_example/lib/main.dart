@@ -20,6 +20,7 @@ import 'package:peek_and_pop/misc.dart' as PeekAndPopMisc;
 PeekAndPopControllerState peekAndPopController;
 
 final GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+final GlobalKey header = GlobalKey();
 
 void main() => runApp(MyApp());
 
@@ -68,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget atPeekWrapper(Widget child, PeekAndPopControllerState _peekAndPopController) {
-    return Container(
+     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
         boxShadow: [
@@ -126,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: const Color(0xffFF9500),
         ),
       ),
+      transitionBetweenRoutes: false,
     );
   }
 
@@ -138,30 +140,30 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget gridPeekAndPopBuilder(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
-    if (_peekAndPopController.willBeDone || _peekAndPopController.isDone)
-      return atPopWrapper(
-        Transform.translate(
-          offset: Offset(0,
-              verticalImages.contains(index) ? 0.0 : _peekAndPopController.peekAndPopChild.getHeaderOffset(PeekAndPopMisc.HeaderOffset.NegativeHalf)),
-          child: Image.asset(
-            "assets/" + index.toString() + ".jpeg",
-            fit: BoxFit.contain,
-            key: Key("Image"),
-          ),
-        ),
-        _peekAndPopController,
-      );
-    else
-      return atPeekWrapper(
-        Image.asset(
+  Widget gridPeekAndPopBuilderAtPeek(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPeekWrapper(
+      Image.asset(
+        "assets/" + index.toString() + ".jpeg",
+        fit: BoxFit.contain,
+        key: Key("Image"),
+        scale: verticalImages.contains(index) ? 0.5 : 1.0,
+      ),
+      _peekAndPopController,
+    );
+  }
+
+  Widget gridPeekAndPopBuilderAtPop(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPopWrapper(
+      Transform.translate(
+        offset: Offset(0, verticalImages.contains(index) ? 0.0 : -50),
+        child: Image.asset(
           "assets/" + index.toString() + ".jpeg",
           fit: BoxFit.contain,
           key: Key("Image"),
-          scale: verticalImages.contains(index) ? 0.5 : 1.0,
         ),
-        _peekAndPopController,
-      );
+      ),
+      _peekAndPopController,
+    );
   }
 
   QuickActionsData gridQuickActionsBuilder(PeekAndPopControllerState _peekAndPopController) {
@@ -297,6 +299,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: BorderStyle.solid,
                 ),
               ),
+              transitionBetweenRoutes: false,
             ),
             SliverPadding(
               padding: EdgeInsets.all(10),
@@ -328,9 +331,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       valueListenable: scrollControllerNotifier,
                     ),
                     true,
-                    (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                        gridPeekAndPopBuilder(index, context, _peekAndPopController),
-                    false,
+                    peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
+                        gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
+                    peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
+                        gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
                     quickActionsBuilder: gridQuickActionsBuilder,
                     sigma: 10,
                     backdropColor: Colors.white,

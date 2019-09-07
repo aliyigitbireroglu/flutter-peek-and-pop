@@ -24,6 +24,7 @@ import 'package:peek_and_pop/misc.dart' as PeekAndPopMisc;
 PeekAndPopControllerState peekAndPopController;
 
 final GlobalKey<ScaffoldState> scaffold = GlobalKey<ScaffoldState>();
+final GlobalKey header = GlobalKey();
 
 void main() => runApp(MyApp());
 
@@ -70,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget atPeekWrapper(Widget child, PeekAndPopControllerState _peekAndPopController) {
-    return Container(
+     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
         boxShadow: [
@@ -128,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: const Color(0xffFF9500),
         ),
       ),
+      transitionBetweenRoutes: false,
     );
   }
 
@@ -183,28 +185,29 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget normalPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
-    if (_peekAndPopController.willBeDone || _peekAndPopController.isDone)
-      return atPopWrapper(
-        Transform.translate(
-          offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(PeekAndPopMisc.HeaderOffset.NegativeHalf)),
-          child: Image.asset(
-            "assets/Scenery.jpeg",
-            fit: BoxFit.contain,
-            key: Key("Image"),
-          ),
-        ),
-        _peekAndPopController,
-      );
-    else
-      return atPeekWrapper(
-        Image.asset(
+  Widget normalPeekAndPopBuilderAtPeek(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPeekWrapper(
+      Image.asset(
+        "assets/Scenery.jpeg",
+        fit: BoxFit.contain,
+        key: Key("Image"),
+      ),
+      _peekAndPopController,
+    );
+  }
+
+  Widget normalPeekAndPopBuilderAtPop(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPopWrapper(
+      Transform.translate(
+        offset: Offset(0, -50),
+        child: Image.asset(
           "assets/Scenery.jpeg",
           fit: BoxFit.contain,
           key: Key("Image"),
         ),
-        _peekAndPopController,
-      );
+      ),
+      _peekAndPopController,
+    );
   }
 
   Widget platformViewPeekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController) {
@@ -229,7 +232,8 @@ class _MyHomePageState extends State<MyHomePage> {
           key: scaffold,
           appBar: (_peekAndPopController.willBeDone || _peekAndPopController.isDone) ? appBar(_peekAndPopController) : null,
           body: SizedBox.expand(
-            child: peekAndPopController.stage == Stage.IsPeeking || _peekAndPopController.willBeDone || peekAndPopController.isDone
+            child: (peekAndPopController.stage == Stage.IsPeeking || _peekAndPopController.willBeDone || peekAndPopController.isDone) &&
+                    DateTime.now().difference(_peekAndPopController.pushTime).inSeconds > 1
                 ? InAppBrowser("https://flutter.dev")
                 : peekAndPopController.stage == Stage.WillCancel || peekAndPopController.stage == Stage.IsCancelled
                     ? Container()
@@ -244,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_peekAndPopController.willBeDone || _peekAndPopController.isDone)
       return atPopWrapper(
         Transform.translate(
-          offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(PeekAndPopMisc.HeaderOffset.NegativeHalf)),
+          offset: Offset(0, -50),
           child: Hero(
             tag: "Hero",
             child: Image.asset(
@@ -264,32 +268,34 @@ class _MyHomePageState extends State<MyHomePage> {
       );
   }
 
-  Widget gridPeekAndPopBuilder(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
-    if (_peekAndPopController.willBeDone || _peekAndPopController.isDone)
-      return atPopWrapper(
-        Transform.translate(
-          offset: Offset(0, _peekAndPopController.peekAndPopChild.getHeaderOffset(PeekAndPopMisc.HeaderOffset.NegativeHalf)),
-          child: Image.asset(
-            "assets/" + index.toString() + ".jpeg",
-            fit: BoxFit.contain,
-            key: Key("Image"),
-          ),
-        ),
-        _peekAndPopController,
-      );
-    else
-      return atPeekWrapper(
-        Image.asset(
+  Widget gridPeekAndPopBuilderAtPeek(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPeekWrapper(
+      Image.asset(
+        "assets/" + index.toString() + ".jpeg",
+        fit: BoxFit.contain,
+        key: Key("Image"),
+      ),
+      _peekAndPopController,
+    );
+  }
+
+  Widget gridPeekAndPopBuilderAtPop(int index, BuildContext context, PeekAndPopControllerState _peekAndPopController) {
+    return atPopWrapper(
+      Transform.translate(
+        offset: Offset(0, -50),
+        child: Image.asset(
           "assets/" + index.toString() + ".jpeg",
           fit: BoxFit.contain,
           key: Key("Image"),
         ),
-        _peekAndPopController,
-      );
+      ),
+      _peekAndPopController,
+    );
   }
 
   QuickActionsData moveableQuickActionsBuilder(PeekAndPopControllerState _peekAndPopController) {
     return QuickActionsData(
+      const EdgeInsets.only(left: 12.5, top: 25, right: 12.5, bottom: 25),
       const BorderRadius.all(const Radius.circular(10.0)),
       [
         QuickAction(
@@ -383,6 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   QuickActionsData gridQuickActionsBuilder(PeekAndPopControllerState _peekAndPopController) {
     return QuickActionsData(
+      const EdgeInsets.only(left: 12.5, top: 25, right: 12.5, bottom: 25),
       const BorderRadius.all(const Radius.circular(10.0)),
       [
         QuickAction(
@@ -517,8 +524,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Colors.redAccent,
                       ),
                       true,
-                      normalPeekAndPopBuilder,
-                      false,
+                      peekAndPopBuilderAtPeek: normalPeekAndPopBuilderAtPeek,
+                      peekAndPopBuilderAtPop: normalPeekAndPopBuilderAtPop,
                       sigma: 10,
                       backdropColor: Colors.white,
                       useOverlap: true,
@@ -538,8 +545,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Colors.deepPurpleAccent,
                       ),
                       true,
-                      normalPeekAndPopBuilder,
-                      false,
+                      peekAndPopBuilderAtPeek: normalPeekAndPopBuilderAtPeek,
+                      peekAndPopBuilderAtPop: normalPeekAndPopBuilderAtPop,
                       quickActionsBuilder: moveableQuickActionsBuilder,
                       sigma: 10,
                       backdropColor: Colors.white,
@@ -560,15 +567,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         Colors.cyan,
                       ),
                       true,
-                      platformViewPeekAndPopBuilder,
-                      false,
+                      peekAndPopBuilder: platformViewPeekAndPopBuilder,
+                      peekAndPopBuilderUseCache: false,
                       sigma: 10,
                       backdropColor: Colors.white,
                       useOverlap: true,
                       customOverlapRect: Rect.fromLTRB(
-                        MediaQuery.of(context).size.width * 0.5,
-                        MediaQuery.of(context).size.height * 0.75,
-                        MediaQuery.of(context).size.width * 0.5,
+                        MediaQuery.of(context).size.width * 0.25,
+                        MediaQuery.of(context).size.height * 0.25,
+                        MediaQuery.of(context).size.width * 0.25,
                         MediaQuery.of(context).size.height * 0.25,
                       ),
                       useAlignment: true,
@@ -587,8 +594,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Colors.greenAccent,
                       ),
                       true,
-                      specialPeekAndPopBuilder,
-                      false,
+                      peekAndPopBuilder: specialPeekAndPopBuilder,
+                      peekAndPopBuilderUseCache: false,
                       sigma: 10,
                       backdropColor: Colors.white,
                       useOverlap: true,
@@ -621,9 +628,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   true,
-                  (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                      gridPeekAndPopBuilder(index, context, _peekAndPopController),
-                  false,
+                  peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
+                      gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
+                  peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
+                      gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
                   quickActionsBuilder: gridQuickActionsBuilder,
                   sigma: 10,
                   backdropColor: Colors.white,

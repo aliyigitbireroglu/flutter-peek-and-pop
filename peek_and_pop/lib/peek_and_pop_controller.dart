@@ -24,13 +24,23 @@ class PeekAndPopController extends StatefulWidget {
   ///Set this to true if your [uiChild] doesn't change during the Peek & Pop process.
   final bool uiChildUseCache;
 
-  ///The view to be displayed during the Peek & Pop process.
+  ///The view to be displayed during the Peek & Pop process. If [peekAndPopBuilderAtPop] and [peekAndPopBuilderAtPeek] are set, this value is ignored.
   final PeekAndPopBuilder peekAndPopBuilder;
 
-  ///Set this to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process.
+  ///Set this to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process. If [peekAndPopBuilderAtPop] and
+  ///[peekAndPopBuilderAtPeek] are set, this value is ignored.
   final bool peekAndPopBuilderUseCache;
 
-  ///The Quick Actions to be displayed if the view is dragged and snapped. Leave null if you do not wish to use Quick Actions.
+  ///The view to be displayed during the Peek & Pop process at the Peek stage. If this value is set, [peekAndPopBuilderAtPop] must be set too. If
+  ///this value is set, [peekAndPopBuilder] and [peekAndPopBuilderUseCache] are ignored.
+  final PeekAndPopBuilder peekAndPopBuilderAtPeek;
+
+  ///The view to be displayed during the Peek & Pop process at the Pop stage. If this value is set, [peekAndPopBuilderAtPeek] must be set too. If
+  ///this value is set, [peekAndPopBuilder] and [peekAndPopBuilderUseCache] are ignored.
+  final PeekAndPopBuilder peekAndPopBuilderAtPop;
+
+  ///The Quick Actions to be displayed if the view is dragged and snapped. If this value is set, it is recommended that [peekAndPopBuilderAtPop]
+  ///and [peekAndPopBuilderAtPop] are set too.
   final QuickActionsBuilder quickActionsBuilder;
 
   ///The maximum [BackdropFilter.sigmaX] and [BackdropFilter.sigmaY] to be applied to the [Blur] widget.
@@ -44,7 +54,7 @@ class PeekAndPopController extends StatefulWidget {
   final int alpha;
 
   ///An optional second view to be displayed during the Peek & Pop process. See [PeekAndPopChildState.build] for more.
-  final Widget overlayBuiler;
+  final WidgetBuilder overlayBuiler;
 
   ///Set this to true if you want your [peekAndPopBuilder] to appear based on the Rect of your [uiChild]. If [customOverlapRect] is provided, it
   ///will override the Rect of your [uiChild]. Not recommended to use at the same time as [useOverlap] but it won't cause problems as can be seen
@@ -136,12 +146,16 @@ class PeekAndPopController extends StatefulWidget {
   ///   (A default [SlideTransition] is provided.)
   final Function pageTransition;
 
+  final bool useHaptics;
+
   const PeekAndPopController(
     this.uiChild,
-    this.uiChildUseCache,
-    this.peekAndPopBuilder,
-    this.peekAndPopBuilderUseCache, {
+    this.uiChildUseCache, {
     Key key,
+    this.peekAndPopBuilder,
+    this.peekAndPopBuilderUseCache,
+    this.peekAndPopBuilderAtPeek,
+    this.peekAndPopBuilderAtPop,
     this.quickActionsBuilder,
     this.sigma: 10,
     this.backdropColor: Colors.black,
@@ -173,6 +187,7 @@ class PeekAndPopController extends StatefulWidget {
     this.peekScale: 0.5,
     this.peekCoefficient: 0.05,
     this.pageTransition,
+    this.useHaptics: true,
   }) : super(key: key);
 
   @override
@@ -182,6 +197,8 @@ class PeekAndPopController extends StatefulWidget {
       uiChildUseCache,
       peekAndPopBuilder,
       peekAndPopBuilderUseCache,
+      peekAndPopBuilderAtPeek,
+      peekAndPopBuilderAtPop,
       quickActionsBuilder,
       sigma,
       backdropColor,
@@ -213,6 +230,7 @@ class PeekAndPopController extends StatefulWidget {
       peekScale,
       peekCoefficient,
       pageTransition,
+      useHaptics,
     );
   }
 }
@@ -222,6 +240,16 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final bool uiChildUseCache;
   final PeekAndPopBuilder peekAndPopBuilder;
   final bool peekAndPopBuilderUseCache;
+  bool get useCache {
+    return hasSeparatedPeekAndPop || peekAndPopBuilderUseCache;
+  }
+
+  final PeekAndPopBuilder peekAndPopBuilderAtPeek;
+  final PeekAndPopBuilder peekAndPopBuilderAtPop;
+  bool get hasSeparatedPeekAndPop {
+    return peekAndPopBuilderAtPeek != null && peekAndPopBuilderAtPop != null;
+  }
+
   final QuickActionsBuilder quickActionsBuilder;
   QuickActionsData quickActionsData;
   bool get hasQuickActions {
@@ -231,10 +259,10 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final double sigma;
   final Color backdropColor;
   final int alpha;
+  final WidgetBuilder overlayBuilder;
   final bool useOverlap;
   final Rect customOverlapRect;
   final bool useAlignment;
-  final Widget overlayBuilder;
   final bool useIndicator;
   final double indicatorScaleUpCoefficient;
   OverlayEntry indicator;
@@ -265,6 +293,8 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   final double peekCoefficient;
 
   final Function pageTransition;
+
+  final bool useHaptics;
 
   PeekAndPopChildState peekAndPopChild;
 
@@ -323,13 +353,15 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
   double minimumLengthInBytes = 5000;
 
   ///Use this value to determine the depth of debug logging that is actually only here for myself and the Swiss scientists.
-  final int _debugLevel = 10;
+  final int _debugLevel = 0;
 
   PeekAndPopControllerState(
     this.uiChild,
     this.uiChildUseCache,
     this.peekAndPopBuilder,
     this.peekAndPopBuilderUseCache,
+    this.peekAndPopBuilderAtPeek,
+    this.peekAndPopBuilderAtPop,
     this.quickActionsBuilder,
     this.sigma,
     this.backdropColor,
@@ -361,6 +393,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     this.peekScale,
     this.peekCoefficient,
     this.pageTransition,
+    this.useHaptics,
   );
 
   void updateTrackerNotifiers() {
@@ -406,7 +439,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
         break;
       case AnimationStatus.dismissed:
         stage = Stage.IsFinished;
-        print(stage);
+        //print(stage);
 
         if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -430,7 +463,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (!isDirect) {
       stage = Stage.IsPushed;
-      print(stage);
+      //print(stage);
     }
   }
 
@@ -713,7 +746,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("OnPeekAndPopComplete");
 
     stage = Stage.WillComplete;
-    print(stage);
+    //print(stage);
 
     if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -742,7 +775,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     pushTime = DateTime.now();
 
     stage = Stage.IsComplete;
-    print(stage);
+    //print(stage);
 
     if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -760,7 +793,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("PushPeekAndPop");
 
     stage = Stage.WillPush;
-    print(stage);
+    //print(stage);
 
     if (quickActionsBuilder != null) quickActionsData = quickActionsBuilder(this);
 
@@ -865,7 +898,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (willCancelPeekAndPop != null && !willCancelPeekAndPop(this)) return;
 
     stage = Stage.WillCancel;
-    print(stage);
+    //print(stage);
 
     if (_debugLevel > 0) {
       if (!isFromOverlayEntry)
@@ -881,7 +914,6 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     }
 
     drivePeekAndPop(false);
-    if (peekAndPopChild != null) peekAndPopChild.animationController.reverse();
 
     popPeekAndPop();
   }
@@ -898,7 +930,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("finishPeekAndPop");
 
     stage = Stage.WillFinish;
-    print(stage);
+    //print(stage);
 
     if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -920,7 +952,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("ClosePeekAndPop");
 
     stage = Stage.WillClose;
-    print(stage);
+    //print(stage);
 
     if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -935,7 +967,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (stage == Stage.WillCancel) {
       stage = Stage.IsCancelled;
-      print(stage);
+      //print(stage);
 
       if (onCancelPeekAndPop != null) onCancelPeekAndPop(this);
       if (hasQuickActions && peekAndPopChild != null) peekAndPopChild.onCancelPeekAndPop(this);
@@ -943,7 +975,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     if (stage == Stage.WillClose) {
       stage = Stage.IsClosed;
-      print(stage);
+      //print(stage);
 
       if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
@@ -959,10 +991,15 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     if (_debugLevel > 0) print("DrivePeekAndPop: $forward");
 
     if (forward) {
-      HapticFeedback.mediumImpact();
+      if (useHaptics) HapticFeedback.mediumImpact();
+
+      if (peekAndPopChild != null) peekAndPopChild.pop();
+
       primaryAnimationController.forward();
       secondaryAnimationController.forward();
     } else {
+      if (peekAndPopChild != null) peekAndPopChild.animationController.reverse();
+
       primaryAnimationController.reverse();
       secondaryAnimationController.reverse();
     }

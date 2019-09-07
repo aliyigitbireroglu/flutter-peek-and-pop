@@ -201,9 +201,11 @@ Then, create a PeekAndPopController such as:
 PeekAndPopController(
   uiChild(),            //Widget uiChild
   false,                //bool uiChildUseCache
-  peekAndPopBuilder,    //PeekAndPopBuilder peekAndPopBuilder
-  false,                //bool peekAndPopBuilderUseCache
  {Key key,
+  peekAndPopBuilder,
+  peekAndPopBuilderUseCache,
+  peekAndPopBuilderAtPeek       : peekAndPopBuilderAtPeek,
+  peekAndPopBuilderAtPop        : peekAndPopBuilderAtPop,
   quickActionsBuilder           : quickActionsBuilder,
   sigma                         : 10,
   backdropColor                 : Colors.black,
@@ -234,15 +236,17 @@ PeekAndPopController(
   peakPressure                  : 1.0,
   peekScale                     : 0.5,
   peekCoefficient               : 0.05,
-  popTransition})
+  popTransition,
+  useHaptics                    : true})
   
 Widget uiChild() {}
 
-Widget peekAndPopBuilder(BuildContext context, PeekAndPopControllerState _peekAndPopController);
+Widget peekAndPopBuilderAtPeek(BuildContext context, PeekAndPopControllerState _peekAndPopController);
+Widget peekAndPopBuilderAtPop(BuildContext context, PeekAndPopControllerState _peekAndPopController);
 
 QuickActionsData quickActionsBuilder(PeekAndPopControllerState _peekAndPopController);
 
-Widget overlayBuiler();
+WidgetBuilder overlayBuiler(BuildContext context);
 
 bool _willPeekAndPopComplete(PeekAndPopControllerState _peekAndPopController);
 bool _willPushPeekAndPop(PeekAndPopControllerState _peekAndPopController);
@@ -270,6 +274,9 @@ void _onPressEnd(dynamic dragDetails);
 
 * Set [uiChildUseCache] to true if your [uiChild] doesn't change during the Peek & Pop process.
 * Set [peekAndPopBuilderUseCache] to true if your [peekAndPopBuilder] doesn't change during the Peek & Pop process.
+* If [peekAndPopBuilderAtPop] and [peekAndPopBuilderAtPeek] are set, [peekAndPopBuilder] and [peekAndPopBuilderUseCache] are ignored.
+* If one of [peekAndPopBuilderAtPop] and [peekAndPopBuilderAtPeek] is set, the other one must be set too.
+* If [quickActionsBuilder] is set, it is recommended that [peekAndPopBuilderAtPop] and [peekAndPopBuilderAtPop] are set too.
 * [overlayBuilder] is an optional second view to be displayed  during the Peek & Pop process. This entire widget is built after everything else.
 * For all [PeekAndPopProcessNotifier] callbacks such as [willPeekAndPopComplete], you can return false to prevent the default action.
 * All [PeekAndPopProcessNotifier] and [PeekAndPopProcessCallback] callbacks will return a reference to the created [PeekAndPopController] state.
@@ -279,10 +286,6 @@ You can save this instance for further actions.
 directly.
 * Use [PeekAndPopControllerState]'s [stage] variable to get enumeration for the stage of the Peek & Pop process. If you want to only know when the 
 Peek & Pop process will be or is completed, you can also use [willBeDone] or [isDone] variables.
-* I realised that when an [AppBar] or a [CupertinoNavigationBar] is built with full transparency, their height is not included in the layout of a 
-[Scaffold] or a [CupertinoPageScaffold]. Therefore, moving from a Peek stage with a transparent header to a Pop stage with a non-transparent header
-causes visual conflicts. Use this [PeekAndPopChildState]'s [Size get headerSize] and [double getHeaderOffset(HeaderOffset headerOffset)] methods to
-overcome this problem.
 
 
 [comment]: <> (Notes)

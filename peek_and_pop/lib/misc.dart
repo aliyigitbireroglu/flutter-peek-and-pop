@@ -36,18 +36,6 @@ enum Stage {
   IsClosed,
 }
 
-///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
-enum HeaderOffset {
-  Zero,
-  NegativeHalf,
-  NegativeFull,
-  PositiveHalf,
-  PositiveFull,
-}
-
-///See [PeekAndPopChildState.headerSize] and [PeekAndPopChildState.getHeaderOffset].
-final GlobalKey header = GlobalKey();
-
 ///The new optimised blur effect algorithm during the Peek & Pop process requires your root CupertinoApp/MaterialApp to be wrapped in a
 ///[RepaintBoundary] widget which uses this key. See README, [PeekAndPopChildState.blurSnapshot] or [PeekAndPopChildState.blurTrackerNotifier] for more
 ///info.
@@ -155,7 +143,6 @@ class PeekAndPopRoute<T> extends PageRoute<T> {
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
     if (!_peekAndPopController.isDirect && !_peekAndPopController.ignoreAnimation && _peekAndPopController.stage != Stage.IsComplete) return child;
-
     if (pageTransition == null)
       return SlideTransition(
         position: Tween<Offset>(

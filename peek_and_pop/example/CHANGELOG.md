@@ -1,3 +1,10 @@
+## [1.0.2] - 07.09.2019
+
+* Two new PeekAndPopBuilders are added to [PeekAndPopController]. Use [PeekAndPopController.peekAndPopBuilderAtPeek] and 
+[PeekAndPopController.peekAndPopBuilderAtPop] for both convenience and improved performance.
+
+* Improved performance.
+
 ## [1.0.1] - 03.09.2019
 
 * Minor changes.
