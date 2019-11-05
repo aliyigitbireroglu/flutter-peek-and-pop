@@ -47,7 +47,7 @@ TransformBloc transformBloc = TransformBloc();
 ///Use this function to scale down a widget as the Peek & Pop process proceeds.
 Widget scaleDownWrapper(Widget child, double scaleDownCoefficient) {
   return StreamBuilder(
-    stream: transformBloc.state,
+    stream: transformBloc,
     builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
       return Transform.scale(
         scale: snapshot.hasData ? (1.0 - (snapshot.data * scaleDownCoefficient)) : 1.0,
@@ -60,7 +60,7 @@ Widget scaleDownWrapper(Widget child, double scaleDownCoefficient) {
 ///Use this function to scale up a widget as the Peek & Pop process proceeds.
 Widget scaleUpWrapper(Widget child, double scaleUpCoefficient) {
   return StreamBuilder(
-    stream: transformBloc.state,
+    stream: transformBloc,
     builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
       return Transform.scale(
         scale: snapshot.hasData ? (1.0 + (snapshot.data * scaleUpCoefficient)) : 1.0,

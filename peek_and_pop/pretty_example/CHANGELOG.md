@@ -5,6 +5,8 @@
 
 * Improved performance.
 
+* [1.0.2+1] Support for latest dependencies.
+
 ## [1.0.1] - 03.09.2019
 
 * Minor changes.

@@ -443,7 +443,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
         if (peekAndPopChild != null) peekAndPopChild.updateBlurTrackerNotifier();
 
-        transformBloc.dispatch(0.0);
+        transformBloc.add(0.0);
         break;
       default:
         break;
@@ -982,7 +982,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
       if (onClosePeekAndPop != null) onClosePeekAndPop(this);
     }
 
-    transformBloc.dispatch(0.0);
+    transformBloc.add(0.0);
 
     Navigator.of(context).pop();
   }

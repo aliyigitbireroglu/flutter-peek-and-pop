@@ -350,7 +350,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
       willPeek = true;
       _peekAndPopController.stage = Stage.WillPeek;
       //print(_peekAndPopController.stage);
-      transformBloc.dispatch(1.0);
+      transformBloc.add(1.0);
 
       int currentFramecount = 0;
 
@@ -591,7 +591,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                               _peekAndPopController.sigma,
                             );
                       double alpha = sigma / _peekAndPopController.sigma;
-                      if (sigma != 0.0) transformBloc.dispatch(alpha);
+                      if (sigma != 0.0) transformBloc.add(alpha);
 
                       return BackdropFilter(
                         filter: ImageFilter.blur(
@@ -639,7 +639,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                         double opacity = _peekAndPopController.stage == Stage.WillCancel || _peekAndPopController.stage == Stage.IsCancelled
                             ? animationController.value
                             : 1.0;
-                        if (opacity != 1.0) transformBloc.dispatch(opacity);
+                        if (opacity != 1.0) transformBloc.add(opacity);
 
                         return Opacity(
                           opacity: opacity,
