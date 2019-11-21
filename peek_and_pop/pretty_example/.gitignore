@@ -2,8 +2,8 @@
 /android
 /build
 /ios
-.todo.dart
-.notes.dart
+.notes.md
+.notes.txt
 
 # Miscellaneous
 *.class

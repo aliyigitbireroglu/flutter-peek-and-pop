@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget atPeekWrapper(Widget child, PeekAndPopControllerState _peekAndPopController) {
-     return Container(
+    return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
         boxShadow: [
@@ -331,10 +331,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       valueListenable: scrollControllerNotifier,
                     ),
                     true,
-                    peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                        gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
-                    peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                        gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
+                    peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) => gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
+                    peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) => gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
                     quickActionsBuilder: gridQuickActionsBuilder,
                     sigma: 10,
                     backdropColor: Colors.white,

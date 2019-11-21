@@ -246,15 +246,9 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
     if (quickActions.currentState == null) return;
     if (quickActionsUpperLimit == -1) return;
 
-    if (offset.dy < quickActionsUpperLimit * -1.0 &&
-        quickActions.currentState.animationController.status != AnimationStatus.forward &&
-        quickActions.currentState.animationController.status != AnimationStatus.completed &&
-        quickActions.currentState.animationController.value != 1) {
+    if (offset.dy < quickActionsUpperLimit * -1.0 && quickActions.currentState.animationController.status != AnimationStatus.forward && quickActions.currentState.animationController.status != AnimationStatus.completed && quickActions.currentState.animationController.value != 1) {
       quickActions.currentState.animationController.forward();
-    } else if (offset.dy > quickActionsUpperLimit * -1.0 &&
-        quickActions.currentState.animationController.status != AnimationStatus.reverse &&
-        quickActions.currentState.animationController.status != AnimationStatus.dismissed &&
-        quickActions.currentState.animationController.value != 0) {
+    } else if (offset.dy > quickActionsUpperLimit * -1.0 && quickActions.currentState.animationController.status != AnimationStatus.reverse && quickActions.currentState.animationController.status != AnimationStatus.dismissed && quickActions.currentState.animationController.value != 0) {
       quickActions.currentState.animationController.reverse();
     }
   }
@@ -636,9 +630,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
                               ],
                             ),
                       builder: (BuildContext context, Widget cachedChild) {
-                        double opacity = _peekAndPopController.stage == Stage.WillCancel || _peekAndPopController.stage == Stage.IsCancelled
-                            ? animationController.value
-                            : 1.0;
+                        double opacity = _peekAndPopController.stage == Stage.WillCancel || _peekAndPopController.stage == Stage.IsCancelled ? animationController.value : 1.0;
                         if (opacity != 1.0) transformBloc.add(opacity);
 
                         return Opacity(
@@ -657,9 +649,7 @@ class PeekAndPopChildState extends State<PeekAndPopChild> with SingleTickerProvi
           builder: (BuildContext context, int animationTracker, Widget cachedChild) {
             SchedulerBinding.instance.addPostFrameCallback(viewReady);
 
-            double scale = _peekAndPopController.peekScale +
-                _peekAndPopController.peekCoefficient * _peekAndPopController.primaryAnimationController.value +
-                _peekAndPopController.secondaryAnimation.value;
+            double scale = _peekAndPopController.peekScale + _peekAndPopController.peekCoefficient * _peekAndPopController.primaryAnimationController.value + _peekAndPopController.secondaryAnimation.value;
             scale = Tween<double>(
               begin: _peekAndPopController.useOverlap ? 1.0 : 0.0,
               end: scale,

@@ -765,9 +765,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
     isDirect = true;
     ignoreAnimation = true;
 
-    Navigator.of(context)
-        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition))
-        .whenComplete(() {
+    Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition)).whenComplete(() {
       lastActionTime = DateTime.now();
 
       Future.delayed(const Duration(milliseconds: 666), reset);
@@ -806,9 +804,7 @@ class PeekAndPopControllerState extends State<PeekAndPopController> with TickerP
 
     reroutePress();
 
-    Navigator.of(context)
-        .push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition))
-        .whenComplete(() {
+    Navigator.of(context).push(PeekAndPopRoute(this, (BuildContext context) => PeekAndPopChild(this, getOverlapRect(), getAlignment()), pageTransition)).whenComplete(() {
       lastActionTime = DateTime.now();
 
       Future.delayed(const Duration(milliseconds: 666), reset);

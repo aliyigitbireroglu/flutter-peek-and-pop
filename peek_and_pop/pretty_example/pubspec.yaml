@@ -1,17 +1,17 @@
-name: pretty_example
-description: Pretty Example Project for peek_and_pop.
-version: 1.0.2+1
-author: Ali Yigit Bireroglu <aliyigitbireroglu@gmail.com>
-repository: https://github.com/aliyigitbireroglu/flutter-peek-and-pop
-homepage: https://www.cosmossoftware.coffee
+name            : pretty_example
+description     : Pretty Example Project for peek_and_pop.
+version         : 1.0.3
+author          : Ali Yigit Bireroglu <aliyigitbireroglu@gmail.com>
+repository      : https://github.com/aliyigitbireroglu/flutter-peek-and-pop
+homepage        : https://www.cosmossoftware.coffee
 
-environment:
+environment     :
   sdk: ">=2.1.0 <3.0.0"
 
-dependencies:
-  flutter:
+dependencies    :
+  flutter        :
     sdk: flutter
-  peek_and_pop:
+  peek_and_pop   :
     path: ../
   cupertino_icons: ^0.1.2
   webview_flutter: ^0.3.13
@@ -20,8 +20,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-flutter:
+flutter         :
   uses-material-design: true
 
-  assets:
+  assets              :
     - assets/

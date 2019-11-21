@@ -886,8 +886,7 @@ class _CupertinoSliverNavigationBarState extends State<CupertinoSliverNavigation
   @override
   Widget build(BuildContext context) {
     // Lint ignore to maintain backward compatibility.
-    final Color actionsForegroundColor =
-        widget.actionsForegroundColor ?? CupertinoTheme.of(context).primaryColor; // ignore: deprecated_member_use_from_same_package
+    final Color actionsForegroundColor = widget.actionsForegroundColor ?? CupertinoTheme.of(context).primaryColor; // ignore: deprecated_member_use_from_same_package
 
     final _NavigationBarStaticComponents components = _NavigationBarStaticComponents(
       keys: keys,
@@ -1094,16 +1093,7 @@ class _LargeTitleNavigationBarSliverDelegate extends SliverPersistentHeaderDeleg
 
   @override
   bool shouldRebuild(_LargeTitleNavigationBarSliverDelegate oldDelegate) {
-    return components != oldDelegate.components ||
-        userMiddle != oldDelegate.userMiddle ||
-        backgroundColor != oldDelegate.backgroundColor ||
-        border != oldDelegate.border ||
-        padding != oldDelegate.padding ||
-        actionsForegroundColor != oldDelegate.actionsForegroundColor ||
-        transitionBetweenRoutes != oldDelegate.transitionBetweenRoutes ||
-        persistentHeight != oldDelegate.persistentHeight ||
-        alwaysShowMiddle != oldDelegate.alwaysShowMiddle ||
-        heroTag != oldDelegate.heroTag;
+    return components != oldDelegate.components || userMiddle != oldDelegate.userMiddle || backgroundColor != oldDelegate.backgroundColor || border != oldDelegate.border || padding != oldDelegate.padding || actionsForegroundColor != oldDelegate.actionsForegroundColor || transitionBetweenRoutes != oldDelegate.transitionBetweenRoutes || persistentHeight != oldDelegate.persistentHeight || alwaysShowMiddle != oldDelegate.alwaysShowMiddle || heroTag != oldDelegate.heroTag;
   }
 }
 
@@ -1465,8 +1455,7 @@ class _NavigationBarComponentsTransition {
       return null;
     }
 
-    final RenderAnimatedOpacity topBackLabelOpacity =
-        topComponents.backLabelKey.currentContext?.ancestorRenderObjectOfType(const TypeMatcher<RenderAnimatedOpacity>());
+    final RenderAnimatedOpacity topBackLabelOpacity = topComponents.backLabelKey.currentContext?.ancestorRenderObjectOfType(const TypeMatcher<RenderAnimatedOpacity>());
 
     Animation<double> midClickOpacity;
     if (topBackLabelOpacity != null && topBackLabelOpacity.opacity.value < 1.0) {

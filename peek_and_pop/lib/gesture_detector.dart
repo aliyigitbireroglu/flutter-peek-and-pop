@@ -571,13 +571,7 @@ class GestureDetector extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<Type, GestureRecognizerFactory> gestures = <Type, GestureRecognizerFactory>{};
 
-    if (onTapDown != null ||
-        onTapUp != null ||
-        onTap != null ||
-        onTapCancel != null ||
-        onSecondaryTapDown != null ||
-        onSecondaryTapUp != null ||
-        onSecondaryTapCancel != null) {
+    if (onTapDown != null || onTapUp != null || onTap != null || onTapCancel != null || onSecondaryTapDown != null || onSecondaryTapUp != null || onSecondaryTapCancel != null) {
       gestures[TapGestureRecognizer] = GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(debugOwner: this),
         (TapGestureRecognizer instance) {
@@ -616,11 +610,7 @@ class GestureDetector extends StatelessWidget {
       );
     }
 
-    if (onVerticalDragDown != null ||
-        onVerticalDragStart != null ||
-        onVerticalDragUpdate != null ||
-        onVerticalDragEnd != null ||
-        onVerticalDragCancel != null) {
+    if (onVerticalDragDown != null || onVerticalDragStart != null || onVerticalDragUpdate != null || onVerticalDragEnd != null || onVerticalDragCancel != null) {
       gestures[VerticalDragGestureRecognizer] = GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
         () => VerticalDragGestureRecognizer(debugOwner: this),
         (VerticalDragGestureRecognizer instance) {
@@ -635,11 +625,7 @@ class GestureDetector extends StatelessWidget {
       );
     }
 
-    if (onHorizontalDragDown != null ||
-        onHorizontalDragStart != null ||
-        onHorizontalDragUpdate != null ||
-        onHorizontalDragEnd != null ||
-        onHorizontalDragCancel != null) {
+    if (onHorizontalDragDown != null || onHorizontalDragStart != null || onHorizontalDragUpdate != null || onHorizontalDragEnd != null || onHorizontalDragCancel != null) {
       gestures[HorizontalDragGestureRecognizer] = GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
         () => HorizontalDragGestureRecognizer(debugOwner: this),
         (HorizontalDragGestureRecognizer instance) {
@@ -957,8 +943,7 @@ class RawGestureDetectorState extends State<RawGestureDetector> {
       assert(gestures[type]._debugAssertTypeMatches(type));
       assert(!_recognizers.containsKey(type));
       _recognizers[type] = oldRecognizers[type] ?? gestures[type].constructor();
-      assert(_recognizers[type].runtimeType == type,
-          'GestureRecognizerFactory of type $type created a GestureRecognizer of type ${_recognizers[type].runtimeType}. The GestureRecognizerFactory must be specialized with the type of the class that it returns from its constructor method.');
+      assert(_recognizers[type].runtimeType == type, 'GestureRecognizerFactory of type $type created a GestureRecognizer of type ${_recognizers[type].runtimeType}. The GestureRecognizerFactory must be specialized with the type of the class that it returns from its constructor method.');
       gestures[type].initializer(_recognizers[type]);
     }
     for (Type type in oldRecognizers.keys) {

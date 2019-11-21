@@ -1,3 +1,7 @@
+## [1.0.3] - 21.11.2019
+
+* Minor changes.
+
 ## [1.0.2] - 07.09.2019
 
 * Two new PeekAndPopBuilders are added to [PeekAndPopController]. Use [PeekAndPopController.peekAndPopBuilderAtPeek] and 

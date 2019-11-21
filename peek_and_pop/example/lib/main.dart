@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget atPeekWrapper(Widget child, PeekAndPopControllerState _peekAndPopController) {
-     return Container(
+    return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
         boxShadow: [
@@ -226,18 +226,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.all(
-            (_peekAndPopController.willBeDone || _peekAndPopController.isDone) ? const Radius.circular(0.0) : const Radius.circular(10.0)),
+        borderRadius: BorderRadius.all((_peekAndPopController.willBeDone || _peekAndPopController.isDone) ? const Radius.circular(0.0) : const Radius.circular(10.0)),
         child: Scaffold(
           key: scaffold,
           appBar: (_peekAndPopController.willBeDone || _peekAndPopController.isDone) ? appBar(_peekAndPopController) : null,
           body: SizedBox.expand(
-            child: (peekAndPopController.stage == Stage.IsPeeking || _peekAndPopController.willBeDone || peekAndPopController.isDone) &&
-                    DateTime.now().difference(_peekAndPopController.pushTime).inSeconds > 1
-                ? InAppBrowser("https://flutter.dev")
-                : peekAndPopController.stage == Stage.WillCancel || peekAndPopController.stage == Stage.IsCancelled
-                    ? Container()
-                    : const Center(child: const CupertinoActivityIndicator()),
+            child: (peekAndPopController.stage == Stage.IsPeeking || _peekAndPopController.willBeDone || peekAndPopController.isDone) && DateTime.now().difference(_peekAndPopController.pushTime).inSeconds > 1 ? InAppBrowser("https://flutter.dev") : peekAndPopController.stage == Stage.WillCancel || peekAndPopController.stage == Stage.IsCancelled ? Container() : const Center(child: const CupertinoActivityIndicator()),
           ),
         ),
       ),
@@ -628,10 +622,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   true,
-                  peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                      gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
-                  peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) =>
-                      gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
+                  peekAndPopBuilderAtPeek: (BuildContext context, PeekAndPopControllerState _peekAndPopController) => gridPeekAndPopBuilderAtPeek(index, context, _peekAndPopController),
+                  peekAndPopBuilderAtPop: (BuildContext context, PeekAndPopControllerState _peekAndPopController) => gridPeekAndPopBuilderAtPop(index, context, _peekAndPopController),
                   quickActionsBuilder: gridQuickActionsBuilder,
                   sigma: 10,
                   backdropColor: Colors.white,
