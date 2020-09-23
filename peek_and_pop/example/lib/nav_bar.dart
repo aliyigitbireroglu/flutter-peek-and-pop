@@ -236,6 +236,7 @@ Widget _wrapWithBackground({
 ///  * [CupertinoSliverNavigationBar] for a navigation bar to be placed in a
 ///    scrolling list and that supports iOS-11-style large titles.
 class CupertinoNavigationBar extends StatefulWidget implements ObstructingPreferredSizeWidget {
+
   /// {@template flutter.cupertino.navBar.leading}
   /// Widget to place at the start of the navigation bar. Normally a back button
   /// for a normal page or a cancel button for full page dialogs.
@@ -411,7 +412,7 @@ class CupertinoNavigationBar extends StatefulWidget implements ObstructingPrefer
 
   /// True if the navigation bar's background color has no transparency.
   @override
-  bool get fullObstruction => backgroundColor == null ? null : backgroundColor.alpha == 0xFF;
+  bool shouldFullyObstruct(BuildContext context) => backgroundColor == null ? null : backgroundColor.alpha == 0xFF;
 
   @override
   Size get preferredSize {
