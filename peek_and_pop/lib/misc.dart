@@ -72,8 +72,8 @@ Widget scaleUpWrapper(Widget child, double scaleUpCoefficient) {
 
 ///A Bloc class for controlling the [scaleDownWrapper] and [scaleUpWrapper].
 class TransformBloc extends Bloc<double, double> {
-  @override
-  double initialState = 0.0;
+
+  TransformBloc(): super(0.0);
 
   @override
   Stream<double> mapEventToState(double newState) async* {
